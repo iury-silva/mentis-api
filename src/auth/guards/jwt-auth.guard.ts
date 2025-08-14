@@ -1,16 +1,11 @@
-// NestJS
 import {
   ExecutionContext,
   Injectable,
-  // UnauthorizedException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-// Password
 import { AuthGuard } from '@nestjs/passport';
-// Decorators
+import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/is-public.decorator';
-// Error Handling
-// import { UnauthorizedError } from '../errors/unauthorized.error';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -23,17 +18,16 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       context.getHandler(),
       context.getClass(),
     ]);
-
-    if (isPublic) {
-      return true;
-    }
-
-    const canActivate = super.canActivate(context);
-
-    if (typeof canActivate === 'boolean') {
-      return canActivate;
-    }
+    if (isPublic) return true;
 
     return super.canActivate(context) as Promise<boolean>;
+  }
+  handleRequest(err: any, user: any) {
+    if (err || !user) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      throw new UnauthorizedException(err?.message || 'Unauthorized');
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return user;
   }
 }

@@ -1,6 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/database/prisma.service';
 import * as bcrypt from 'bcrypt';
 
@@ -44,15 +43,6 @@ export class UsersService {
     } catch {
       throw new Error('Error fetching user by email');
     }
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
   }
 
   async remove(id: string) {

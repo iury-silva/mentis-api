@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'src/database/prisma.service';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class UsersService {
@@ -54,5 +55,23 @@ export class UsersService {
     } catch {
       throw new Error('Error removing user');
     }
+  }
+
+  async findOrCreateOAuthUser(params: { email: string; name: string }) {
+    let user = await this.prisma.user.findUnique({
+      where: { email: params.email },
+    });
+    if (!user) {
+      const randomPassword = crypto.randomUUID();
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+      user = await this.prisma.user.create({
+        data: {
+          email: params.email,
+          name: params.name,
+          password: hashedPassword,
+        },
+      });
+    }
+    return user;
   }
 }

@@ -14,8 +14,14 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string) {
+    console.log('Validating user with email:', email);
     const user = await this.userService.findByEmail(email);
-    if (user && bcrypt.compareSync(password, user.password)) {
+    console.log('Found user:', user);
+    console.log(
+      'Comparing passwords...',
+      await bcrypt.compare(password, user?.password || ''),
+    );
+    if (user && (await bcrypt.compare(password, user.password))) {
       return {
         ...user,
         password: undefined, // Exclude password from the returned user object
@@ -29,6 +35,7 @@ export class AuthService {
       sub: user.id ?? '',
       email: user.email ?? '',
       role: user.role,
+      avatar: user.avatar ?? '',
     };
 
     return {
@@ -38,6 +45,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        avatar: user.avatar || '',
       },
     };
   }

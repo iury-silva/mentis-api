@@ -26,4 +26,8 @@ export class CreateUserDto {
   @IsOptional()
   @IsEnum(['user', 'admin'])
   role?: string;
+
+  @IsOptional()
+  @IsString()
+  avatar?: string;
 }

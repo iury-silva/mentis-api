@@ -20,6 +20,7 @@ export class UsersService {
       return await this.prisma.user.create({
         data: {
           ...createUserDto,
+          avatar: createUserDto.avatar || '',
           password: hashedPassword,
         },
       });
@@ -57,7 +58,11 @@ export class UsersService {
     }
   }
 
-  async findOrCreateOAuthUser(params: { email: string; name: string }) {
+  async findOrCreateOAuthUser(params: {
+    email: string;
+    name: string;
+    avatar?: string;
+  }) {
     let user = await this.prisma.user.findUnique({
       where: { email: params.email },
     });
@@ -68,6 +73,7 @@ export class UsersService {
         data: {
           email: params.email,
           name: params.name,
+          avatar: params.avatar || '',
           password: hashedPassword,
         },
       });

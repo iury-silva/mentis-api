@@ -5,9 +5,10 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { QuestionnaireModule } from './questionnaire/questionnaire.module';
 
 @Module({
-  imports: [UsersModule, AuthModule],
+  imports: [UsersModule, AuthModule, QuestionnaireModule],
   controllers: [AppController],
   providers: [
     AppService,

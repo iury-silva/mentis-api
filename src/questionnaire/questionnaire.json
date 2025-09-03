@@ -1,0 +1,585 @@
+{
+  "title": "Questionário Viver com Orgulho",
+  "description": "Este questionário é dividido em 3 blocos. Complete cada bloco na ordem para avançar e liberar bonificações.",
+  "blocks": [
+    {
+      "id": 1,
+      "title": "Bloco 1 – Dados Sociodemográficos",
+      "description": "Coleta informações básicas sobre você.",
+      "questions": [
+        {
+          "id": 1,
+          "type": "multiple_choice",
+          "question": "Gênero",
+          "options": [
+            "Mulher Cis",
+            "Homem Cis",
+            "Mulher trans",
+            "Homem trans",
+            "Travesti",
+            "Não binário",
+            "Outro"
+          ]
+        },
+        {
+          "id": 2,
+          "type": "multiple_choice",
+          "question": "Uso de nome social",
+          "options": ["Sim", "Não"]
+        },
+        {
+          "id": 3,
+          "type": "multiple_choice",
+          "question": "Identidade sexual",
+          "options": [
+            "Gay",
+            "Lésbica",
+            "Intersexo",
+            "Bissexual",
+            "Pansexual",
+            "Assexual",
+            "Outro"
+          ]
+        },
+        {
+          "id": 4,
+          "type": "multiple_choice",
+          "question": "Faixa etária",
+          "options": [
+            "40 a 44 anos",
+            "45 a 49 anos",
+            "50 a 54 anos",
+            "55 a 59 anos",
+            "60 a 64 anos",
+            "65 a 69 anos",
+            "70 a 74 anos",
+            "75 a 79 anos",
+            "Mais de 80 anos"
+          ]
+        },
+        {
+          "id": 5,
+          "type": "text",
+          "question": "Cidade e Estado de residência"
+        },
+        {
+          "id": 6,
+          "type": "multiple_choice",
+          "question": "Cor/Raça",
+          "options": ["Branco", "Preto", "Pardo", "Amarelo", "Indígena"]
+        },
+        {
+          "id": 7,
+          "type": "multiple_choice",
+          "question": "Filhos(as)",
+          "options": ["Não", "1", "2", "3", "Mais de 3"]
+        },
+        {
+          "id": 8,
+          "type": "multiple_choice",
+          "question": "Estado civil",
+          "options": [
+            "Solteiro(a)",
+            "Casado(a)",
+            "Divorciado(a)",
+            "Viúvo(a)",
+            "Em união estável",
+            "Outro"
+          ]
+        },
+        {
+          "id": 9,
+          "type": "text",
+          "question": "Religião ou prática espiritual"
+        },
+        {
+          "id": 10,
+          "type": "multiple_choice",
+          "question": "Escolaridade",
+          "options": [
+            "Ensino fundamental incompleto",
+            "Ensino fundamental completo",
+            "Ensino médio incompleto",
+            "Ensino médio completo",
+            "Curso técnico incompleto",
+            "Curso técnico completo",
+            "Ensino superior incompleto",
+            "Ensino superior completo",
+            "Pós-graduação incompleta",
+            "Pós-graduação completa",
+            "Sem escolaridade"
+          ]
+        },
+        {
+          "id": 11,
+          "type": "multiple_choice",
+          "question": "Deseja iniciar ou continuar estudos?",
+          "options": ["Sim", "Não"]
+        },
+        {
+          "id": 12,
+          "type": "multiple_choice",
+          "question": "Ingresso no ensino superior por cotas",
+          "options": [
+            "Cotas raciais",
+            "Cotas baixa renda",
+            "Cotas travestis/transexuais",
+            "Não usei cotas",
+            "Não se aplica"
+          ]
+        },
+        {
+          "id": 13,
+          "type": "multiple_choice",
+          "question": "No trabalho/escola, sua identidade de gênero é respeitada?",
+          "options": ["Sempre", "Às vezes", "Nunca", "Não se aplica"]
+        },
+        {
+          "id": 14,
+          "type": "multiple_choice",
+          "question": "Situação atual",
+          "options": [
+            "Empregado(a) formalmente",
+            "Empregado(a) informalmente",
+            "Estagiário(a)/Bolsista",
+            "Autônomo(a)",
+            "Aposentado(a)/Pensionista",
+            "Desempregado(a)"
+          ]
+        },
+        { "id": 15, "type": "text", "question": "Área de atuação" },
+        {
+          "id": 16,
+          "type": "multiple_choice",
+          "question": "Renda mensal",
+          "options": [
+            "Sem renda",
+            "Até 1",
+            "1 a 2",
+            "3 a 4",
+            "5 a 6",
+            "7 a 8",
+            "9 a 10",
+            "Mais de 10",
+            "Outro"
+          ]
+        },
+        {
+          "id": 17,
+          "type": "multiple_choice",
+          "question": "Última ocupação",
+          "options": [
+            "Emprego formal",
+            "Emprego informal",
+            "Estágio/Bolsa",
+            "Autônomo(a)",
+            "Desempregado(a)",
+            "Outro"
+          ]
+        },
+        {
+          "id": 18,
+          "type": "multiple_choice",
+          "question": "Recebe auxílio financeiro do governo",
+          "options": [
+            "Previdenciário/assistencial",
+            "Bolsa Família",
+            "Tarifa Social de Energia",
+            "Auxílio moradia/vale-aluguel",
+            "Não recebo",
+            "Outro"
+          ]
+        },
+        {
+          "id": 19,
+          "type": "multiple_choice",
+          "question": "Plano financeiro para aposentadoria",
+          "options": [
+            "Sim, INSS",
+            "Sim, previdência privada",
+            "Sim, previdência servidor público",
+            "Sim, investimentos",
+            "Não"
+          ]
+        },
+        {
+          "id": 20,
+          "type": "multiple_choice",
+          "question": "Tipo de moradia",
+          "options": [
+            "Casa própria",
+            "Alugada",
+            "Cedida",
+            "Compartilhada/República",
+            "Albergue",
+            "Abrigo temporário",
+            "Rua",
+            "Outro"
+          ]
+        },
+        {
+          "id": 21,
+          "type": "multiple_choice",
+          "question": "Quantas pessoas dependem da sua renda",
+          "options": [
+            "Nenhum",
+            "2 a 3 pessoas",
+            "4 a 5 pessoas",
+            "Mais de 5 pessoas"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Bloco 2 – Identidade e Pertencimento",
+      "description": "Questões sobre identidade de gênero, sexualidade e redes de apoio.",
+      "questions": [
+        {
+          "id": 22,
+          "type": "multiple_choice",
+          "question": "Você sente orgulho de quem você é?",
+          "options": [
+            "Nunca",
+            "Raramente",
+            "Às vezes",
+            "Frequentemente",
+            "Sempre"
+          ]
+        },
+        {
+          "id": 23,
+          "type": "multiple_choice",
+          "question": "Consegue falar abertamente sobre sua identidade com pessoas próximas?",
+          "options": [
+            "Nunca",
+            "Raramente",
+            "Às vezes",
+            "Frequentemente",
+            "Sempre"
+          ]
+        },
+        {
+          "id": 24,
+          "type": "multiple_choice",
+          "question": "Conforto e aceitação da identidade",
+          "options": [
+            "Nunca",
+            "Raramente",
+            "Às vezes",
+            "Frequentemente",
+            "Sempre"
+          ]
+        },
+        {
+          "id": 25,
+          "type": "multiple_choice",
+          "question": "Principal rede de apoio",
+          "options": [
+            "Amigos",
+            "Parentes",
+            "Vizinhos",
+            "Profissionais de saúde",
+            "Companheiro(a)",
+            "Nenhuma"
+          ]
+        },
+        {
+          "id": 26,
+          "type": "multiple_choice",
+          "question": "Família aceita você como pessoa LGBTQIA+?",
+          "options": [
+            "Nunca",
+            "Raramente",
+            "Às vezes",
+            "Frequentemente",
+            "Sempre"
+          ]
+        },
+        {
+          "id": 27,
+          "type": "multiple_choice",
+          "question": "As pessoas próximas sentem orgulho de você?",
+          "options": [
+            "Nunca",
+            "Raramente",
+            "Às vezes",
+            "Frequentemente",
+            "Sempre"
+          ]
+        },
+        {
+          "id": 28,
+          "type": "text",
+          "question": "Participação em grupos/eventos da comunidade LGBTQIA+"
+        },
+        {
+          "id": 29,
+          "type": "multiple_choice",
+          "question": "Frequência de relações interpessoais satisfatórias com amigos LGBTQIA+",
+          "options": [
+            "Nunca",
+            "Raramente",
+            "Às vezes",
+            "Frequentemente",
+            "Sempre"
+          ]
+        },
+        {
+          "id": 30,
+          "type": "multiple_choice",
+          "question": "Existe espaço de escuta e valorização para LGBTQIA+ 40+?",
+          "options": [
+            "Nunca",
+            "Raramente",
+            "Às vezes",
+            "Frequentemente",
+            "Sempre"
+          ]
+        },
+        {
+          "id": 31,
+          "type": "text",
+          "question": "Você continua a se desenvolver como indivíduo?"
+        },
+        {
+          "id": 32,
+          "type": "multiple_choice",
+          "question": "Representação na mídia, política e espaços públicos",
+          "options": [
+            "Nunca",
+            "Raramente",
+            "Às vezes",
+            "Frequentemente",
+            "Sempre"
+          ]
+        },
+        {
+          "id": 33,
+          "type": "text",
+          "question": "Já sentiu que não havia espaço para você ser quem é?"
+        },
+        {
+          "id": 34,
+          "type": "text",
+          "question": "Outras características impactam como você é tratado?"
+        },
+        {
+          "id": 35,
+          "type": "multiple_choice",
+          "question": "Espaços fora da comunidade onde se sente acolhido",
+          "options": [
+            "Nunca",
+            "Raramente",
+            "Às vezes",
+            "Frequentemente",
+            "Sempre"
+          ]
+        },
+        {
+          "id": 36,
+          "type": "multiple_choice",
+          "question": "Acesso a informações seguras sobre saúde e prazer sexual",
+          "options": [
+            "Sim",
+            "Não",
+            "Em partes",
+            "Nunca procurei",
+            "Prefiro não responder"
+          ]
+        },
+        {
+          "id": 37,
+          "type": "multiple_choice",
+          "question": "Serviços de saúde respeitam suas necessidades específicas",
+          "options": [
+            "Sempre",
+            "Frequentemente",
+            "Às vezes",
+            "Raramente",
+            "Nunca"
+          ]
+        },
+        {
+          "id": 38,
+          "type": "multiple_choice",
+          "question": "Sua saúde física interfere na vivência da sexualidade?",
+          "options": ["Sim", "Não", "Às vezes", "Não sei responder"]
+        },
+        {
+          "id": 39,
+          "type": "multiple_choice",
+          "question": "Sua saúde mental interfere na vivência da sexualidade?",
+          "options": ["Sim", "Não", "Às vezes", "Não sei responder"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Bloco 3 – Qualidade de Vida e Bem-Estar",
+      "description": "Questões sobre saúde mental, sexualidade e bem-estar geral.",
+      "questions": [
+        {
+          "id": 40,
+          "type": "multiple_choice",
+          "question": "O prazer sexual é importante para seu bem-estar?",
+          "options": ["Sim", "Não", "Nunca pensei sobre isso"]
+        },
+        {
+          "id": 41,
+          "type": "multiple_choice",
+          "question": "Satisfação com a vida sexual atualmente",
+          "options": [
+            "Muito insatisfeito(a)",
+            "Insatisfeito(a)",
+            "Neutro(a)",
+            "Satisfeito(a)",
+            "Muito satisfeito(a)"
+          ]
+        },
+        {
+          "id": 42,
+          "type": "multiple_choice",
+          "question": "Desejo sexual com frequência",
+          "options": [
+            "Nunca",
+            "Raramente",
+            "Às vezes",
+            "Frequentemente",
+            "Sempre"
+          ]
+        },
+        {
+          "id": 43,
+          "type": "text",
+          "question": "Você se sente desejado? Com que frequência?"
+        },
+        {
+          "id": 44,
+          "type": "multiple_choice",
+          "question": "Liberdade para viver o prazer do seu jeito",
+          "options": [
+            "Nunca",
+            "Raramente",
+            "Às vezes",
+            "Frequentemente",
+            "Sempre"
+          ]
+        },
+        {
+          "id": 45,
+          "type": "multiple_choice",
+          "question": "Vivencia momentos de prazer e atividades recreativas?",
+          "options": [
+            "Nunca",
+            "Raramente",
+            "Às vezes",
+            "Frequentemente",
+            "Sempre"
+          ]
+        },
+        {
+          "id": 46,
+          "type": "text",
+          "question": "Quais aspectos da sua vida você considera mais satisfatórios?"
+        },
+        {
+          "id": 47,
+          "type": "text",
+          "question": "Existem áreas da sua vida que você gostaria de melhorar?"
+        },
+        {
+          "id": 48,
+          "type": "text",
+          "question": "O que significa 'ter qualidade de vida' para você?"
+        },
+        {
+          "id": 49,
+          "type": "multiple_choice",
+          "question": "Você tem acesso a recursos que promovam bem-estar e qualidade de vida",
+          "options": [
+            "Sempre",
+            "Frequentemente",
+            "Às vezes",
+            "Raramente",
+            "Nunca"
+          ]
+        },
+        {
+          "id": 50,
+          "type": "multiple_choice",
+          "question": "Você sente que tem tempo suficiente para cuidar de si?",
+          "options": ["Sim", "Não"]
+        },
+        {
+          "id": 51,
+          "type": "multiple_choice",
+          "question": "Suas crenças pessoais dão forças para enfrentar dificuldades",
+          "options": [
+            "Nada",
+            "Muito pouco",
+            "Mais ou menos",
+            "Bastante",
+            "Extremamente"
+          ]
+        },
+        {
+          "id": 52,
+          "type": "multiple_choice",
+          "question": "Você tem sentimento de solidão?",
+          "options": ["Não", "Sim"]
+        },
+        {
+          "id": 53,
+          "type": "text",
+          "question": "Tem alguém com quem contar nos momentos difíceis?"
+        },
+        {
+          "id": 54,
+          "type": "text",
+          "question": "Como você tem lidado com o estresse no cotidiano?"
+        },
+        {
+          "id": 55,
+          "type": "text",
+          "question": "Com que frequência sente sentimento de ansiedade?"
+        },
+        {
+          "id": 56,
+          "type": "text",
+          "question": "Há momentos em que sente falta de motivação ou prazer nas atividades diárias?"
+        },
+        {
+          "id": 57,
+          "type": "multiple_choice",
+          "question": "Esses momentos têm aumentado de frequência com a idade?",
+          "options": ["Sim", "Não"]
+        },
+        {
+          "id": 58,
+          "type": "text",
+          "question": "Como costuma cuidar da sua saúde mental?"
+        },
+        {
+          "id": 59,
+          "type": "multiple_choice",
+          "question": "O que costuma te trazer sentimentos de felicidade?",
+          "options": [
+            "Convívio com amigos",
+            "Relações afetivas ou familiares",
+            "Trabalho ou projetos pessoais",
+            "Momentos de lazer",
+            "Atividades culturais ou espirituais",
+            "Outras"
+          ]
+        },
+        {
+          "id": 60,
+          "type": "multiple_choice",
+          "question": "Você tem com quem compartilhar suas conquistas e momentos bons?",
+          "options": ["Sim", "Em partes", "Não", "Prefiro não responder"]
+        }
+      ]
+    }
+  ]
+}

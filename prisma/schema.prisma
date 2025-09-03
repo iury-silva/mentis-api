@@ -21,9 +21,42 @@ model User {
   password String
   avatar String
   role   String @default("user")
+  answers UserAnswer[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("users")
 }
+
+model Questionnaire {
+  id        String     @id @default(uuid())
+  title     String
+  description String?
+  blocks    Json? // se quiser guardar estrutura bruta
+  questions Question[]
+  createdAt DateTime   @default(now())
+}
+
+model Question {
+  id              String   @id @default(uuid())
+  questionnaireId String
+  questionnaire   Questionnaire @relation(fields: [questionnaireId], references: [id])
+  blockId         String   // UUID do bloco
+  type            String   // multiple_choice | text
+  question        String
+  options         Json?    // se múltipla escolha
+  answers         UserAnswer[]
+}
+
+model UserAnswer {
+  id         String   @id @default(uuid())
+  userId     String
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  answer     Json
+  createdAt  DateTime @default(now())
+}
+
 

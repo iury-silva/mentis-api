@@ -22,7 +22,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
           ARGS: "-rltgoDzvO --delete"
           SOURCE: "./"
-          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
+          REMOTE_HOST: ${{ secrets.SERVER_IP }}
           REMOTE_USER: ${{ secrets.SERVER_USER }}
           TARGET: "/var/www/html/mentis-api/"
           EXCLUDE: "/node_modules/, **.env, .env.local, .gitignore, .git/, .github/, .devops/, .vscode/"

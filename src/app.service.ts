@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { IsPublic } from './auth/decorators/is-public.decorator';
 import { PrismaClient } from '@prisma/client';
 import * as os from 'os';
 
@@ -7,12 +6,10 @@ const prisma = new PrismaClient();
 
 @Injectable()
 export class AppService {
-  @IsPublic()
   getHello(): string {
     return 'Hello World!';
   }
 
-  @IsPublic()
   async getHealthCheck(): Promise<string> {
     // Checando banco de dados
     let dbStatus = '❌ Banco offline';

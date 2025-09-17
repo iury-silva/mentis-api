@@ -77,7 +77,7 @@ export class AppService {
             <p><strong>Memória usada:</strong> ${memoryUsage} MB</p>
           </div>
 
-          <p style="margin-top:40px;">Te amo demais! 🫶</p>
+          <p style="margin-top:40px;">Te amo demais meu amor! 🫶</p>
         </body>
       </html>
     `;

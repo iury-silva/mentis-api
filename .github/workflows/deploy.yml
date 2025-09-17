@@ -18,12 +18,12 @@ jobs:
 
       - name: Copy files with SSH
         uses: easingthemes/ssh-deploy@main
-        env:
+        with:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          ARGS: "-rltgoDzvO --delete"
-          SOURCE: "./"
           REMOTE_HOST: ${{ secrets.SERVER_IP }}
           REMOTE_USER: ${{ secrets.SERVER_USER }}
+          ARGS: "-rltgoDzvO --delete"
+          SOURCE: "./"
           TARGET: "/var/www/html/mentis-api/"
           EXCLUDE: "/node_modules/, **.env, .env.local, .gitignore, .git/, .github/, .devops/, .vscode/"
           SCRIPT_BEFORE: |

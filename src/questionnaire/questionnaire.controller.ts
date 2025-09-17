@@ -6,6 +6,9 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { QuestionnaireService } from './questionnaire.service';
 import { CreateQuestionnaireDto } from './dto/create-questionnaire.dto';
@@ -21,13 +24,20 @@ export class QuestionnaireController {
   }
 
   @Get()
-  findAll() {
-    return this.questionnaireService.findAll();
+  @HttpCode(HttpStatus.OK)
+  findAll(@Query() query: { userId?: string }) {
+    return this.questionnaireService.findAll(query.userId);
+  }
+
+  @Get('/blocks/:id')
+  @HttpCode(HttpStatus.OK)
+  getQuestionsByBlock(@Param('id') blockId: string) {
+    return this.questionnaireService.getQuestionsByBlock(blockId);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.questionnaireService.findOne(+id);
+    return this.questionnaireService.findOne(id);
   }
 
   @Patch(':id')
@@ -35,11 +45,11 @@ export class QuestionnaireController {
     @Param('id') id: string,
     @Body() updateQuestionnaireDto: UpdateQuestionnaireDto,
   ) {
-    return this.questionnaireService.update(+id, updateQuestionnaireDto);
+    return this.questionnaireService.update(id, updateQuestionnaireDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.questionnaireService.remove(+id);
+    return this.questionnaireService.remove(id);
   }
 }

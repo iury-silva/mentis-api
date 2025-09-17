@@ -23,6 +23,10 @@ model User {
   role   String @default("user")
   answers UserAnswer[]
 
+  // opcional: controle de progresso
+  currentBlock Int?
+  questionnaireCompleted Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -30,23 +34,38 @@ model User {
 }
 
 model Questionnaire {
-  id        String     @id @default(uuid())
-  title     String
+  id          String   @id @default(uuid())
+  title       String
   description String?
-  blocks    Json? // se quiser guardar estrutura bruta
-  questions Question[]
-  createdAt DateTime   @default(now())
+  blocks      Block[]
+  createdAt   DateTime @default(now())
+
+  @@map("questionnaires")
 }
 
-model Question {
+model Block {
   id              String   @id @default(uuid())
   questionnaireId String
   questionnaire   Questionnaire @relation(fields: [questionnaireId], references: [id])
-  blockId         String   // UUID do bloco
-  type            String   // multiple_choice | text
-  question        String
-  options         Json?    // se múltipla escolha
-  answers         UserAnswer[]
+  order           Int       // 1,2,3... => ordenação do bloco
+  title           String
+  description     String?
+  bonus           String?   // ex: "documentário", "ebook", "curso"
+  questions       Question[]
+
+  @@map("blocks")
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  blockId   String
+  block     Block    @relation(fields: [blockId], references: [id])
+  type      String   // "multiple_choice" | "text" | etc
+  question  String
+  options   Json?    // opções se múltipla escolha
+  answers   UserAnswer[]
+
+  @@map("questions")
 }
 
 model UserAnswer {
@@ -54,9 +73,9 @@ model UserAnswer {
   userId     String
   questionId String
   question   Question @relation(fields: [questionId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
   answer     Json
   createdAt  DateTime @default(now())
+
+  @@map("user_answers")
 }
-
-

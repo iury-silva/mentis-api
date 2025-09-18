@@ -1,9 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
+import { CreateBlockResponseDto } from './dto/create-response.dto';
 
 @Injectable()
 export class QuestionnaireService {
@@ -107,5 +104,28 @@ export class QuestionnaireService {
       where: { id },
       data,
     });
+  }
+
+  async saveBlockResponses(responseDto: CreateBlockResponseDto) {
+    const { userId, responses } = responseDto;
+
+    // Salva as respostas
+    const savedResponses = await Promise.all(
+      responses.map(async (response) => {
+        // Cria nova resposta
+        return await this.prisma.userAnswer.create({
+          data: {
+            userId,
+            questionId: response.questionId,
+            answer: { selectedOptionId: response.selectedOptionId },
+          },
+        });
+      }),
+    );
+
+    return {
+      message: 'Respostas salvas com sucesso',
+      savedResponses: savedResponses.length,
+    };
   }
 }

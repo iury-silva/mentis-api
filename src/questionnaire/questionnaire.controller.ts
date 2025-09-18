@@ -13,6 +13,7 @@ import {
 import { QuestionnaireService } from './questionnaire.service';
 import { CreateQuestionnaireDto } from './dto/create-questionnaire.dto';
 import { UpdateQuestionnaireDto } from './dto/update-questionnaire.dto';
+import { CreateBlockResponseDto } from './dto/create-response.dto';
 
 @Controller('questionnaire')
 export class QuestionnaireController {
@@ -51,5 +52,11 @@ export class QuestionnaireController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.questionnaireService.remove(id);
+  }
+
+  @Post('responses')
+  @HttpCode(HttpStatus.CREATED)
+  saveResponses(@Body() responseDto: CreateBlockResponseDto) {
+    return this.questionnaireService.saveBlockResponses(responseDto);
   }
 }

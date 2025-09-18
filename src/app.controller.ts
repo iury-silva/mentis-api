@@ -5,7 +5,7 @@ import { IsPublic } from './auth/decorators/is-public.decorator';
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
-  
+
   @IsPublic()
   @Get()
   getHello(): string {

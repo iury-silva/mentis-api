@@ -117,7 +117,7 @@ export class QuestionnaireService {
           data: {
             userId,
             questionId: response.questionId,
-            answer: { selectedOptionId: response.selectedOptionId },
+            answer: { value: response.value },
           },
         });
       }),
@@ -127,5 +127,20 @@ export class QuestionnaireService {
       message: 'Respostas salvas com sucesso',
       savedResponses: savedResponses.length,
     };
+  }
+
+  async getUserResponses(userId: string, blockId: string) {
+    return await this.prisma.userAnswer.findMany({
+      where: { userId, question: { blockId } },
+      include: {
+        question: {
+          select: {
+            id: true,
+            question: true,
+            blockId: true,
+          },
+        },
+      },
+    });
   }
 }

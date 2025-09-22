@@ -30,17 +30,18 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("users")
+  @@map("user")
 }
 
 model Questionnaire {
   id          String   @id @default(uuid())
   title       String
   description String?
+  terms       String?   // termos e condições
   blocks      Block[]
   createdAt   DateTime @default(now())
 
-  @@map("questionnaires")
+  @@map("questionnaire")
 }
 
 model Block {
@@ -53,7 +54,7 @@ model Block {
   bonus           String?   // ex: "documentário", "ebook", "curso"
   questions       Question[]
 
-  @@map("blocks")
+  @@map("block")
 }
 
 model Question {
@@ -65,7 +66,7 @@ model Question {
   options   Json?    // opções se múltipla escolha
   answers   UserAnswer[]
 
-  @@map("questions")
+  @@map("question")
 }
 
 model UserAnswer {
@@ -77,5 +78,5 @@ model UserAnswer {
   answer     Json
   createdAt  DateTime @default(now())
 
-  @@map("user_answers")
+  @@map("user_answer")
 }

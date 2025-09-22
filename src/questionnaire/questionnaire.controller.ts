@@ -59,4 +59,13 @@ export class QuestionnaireController {
   saveResponses(@Body() responseDto: CreateBlockResponseDto) {
     return this.questionnaireService.saveBlockResponses(responseDto);
   }
+
+  @Get('responses/:userId/:blockId')
+  @HttpCode(HttpStatus.OK)
+  getUserResponses(
+    @Param('userId') userId: string,
+    @Param('blockId') blockId: string,
+  ) {
+    return this.questionnaireService.getUserResponses(userId, blockId);
+  }
 }

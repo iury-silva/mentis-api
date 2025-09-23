@@ -49,12 +49,16 @@ export class UsersService {
 
   async remove(id: string) {
     try {
-      const res = await this.prisma.user.delete({
-        where: { id: String(id) },
+      await this.prisma.userAnswer.deleteMany({
+        where: { userId: id },
       });
-      return res;
+      await this.prisma.user.delete({
+        where: { id },
+      });
+
+      return { message: 'User deleted successfully' };
     } catch {
-      throw new Error('Error removing user');
+      throw new Error('Error deleting user');
     }
   }
 

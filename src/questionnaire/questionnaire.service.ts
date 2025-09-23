@@ -110,27 +110,29 @@ export class QuestionnaireService {
     const { userId, responses } = responseDto;
 
     // Salva as respostas
-    const savedResponses = await Promise.all(
-      responses.map(async (response) => {
-        // Cria nova resposta
-        return await this.prisma.userAnswer.create({
-          data: {
-            userId,
-            questionId: response.questionId,
-            answer: { value: response.value },
-          },
-        });
-      }),
-    );
+    for (const response of responses) {
+      await this.prisma.userAnswer.create({
+        data: {
+          userId,
+          questionId: response.questionId,
+          answer: { value: response.value },
+        },
+      });
+    }
 
     return {
       message: 'Respostas salvas com sucesso',
-      savedResponses: savedResponses.length,
+      savedResponses: responses.length,
     };
   }
 
   async getUserResponses(userId: string, blockId: string) {
-    return await this.prisma.userAnswer.findMany({
+    const blockTitle = await this.prisma.block.findUnique({
+      where: { id: blockId },
+      select: { title: true },
+    });
+
+    const userAnswers = await this.prisma.userAnswer.findMany({
       where: { userId, question: { blockId } },
       include: {
         question: {
@@ -142,5 +144,7 @@ export class QuestionnaireService {
         },
       },
     });
+
+    return { blockTitle: blockTitle?.title, userAnswers };
   }
 }

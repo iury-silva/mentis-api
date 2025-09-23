@@ -6,9 +6,17 @@ import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { QuestionnaireModule } from './questionnaire/questionnaire.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, QuestionnaireModule],
+  imports: [
+    UsersModule,
+    AuthModule,
+    QuestionnaireModule,
+    DashboardModule,
+    HealthModule,
+  ],
   controllers: [AppController],
   providers: [
     AppService,

@@ -8,6 +8,9 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { QuestionnaireModule } from './questionnaire/questionnaire.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { HealthModule } from './health/health.module';
+import { UploadModule } from './upload/upload.module';
+import { ConfigModule } from '@nestjs/config';
+import { OciStorageModule } from './oci-storage/oci-storage.module';
 
 @Module({
   imports: [
@@ -16,6 +19,9 @@ import { HealthModule } from './health/health.module';
     QuestionnaireModule,
     DashboardModule,
     HealthModule,
+    UploadModule,
+    ConfigModule.forRoot({ isGlobal: true }),
+    OciStorageModule,
   ],
   controllers: [AppController],
   providers: [

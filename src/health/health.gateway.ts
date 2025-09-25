@@ -4,7 +4,6 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { HealthService } from './health.service';
-import { CreateHealthDto } from './dto/create-health.dto';
 import { UpdateHealthDto } from './dto/update-health.dto';
 
 @WebSocketGateway()
@@ -12,8 +11,8 @@ export class HealthGateway {
   constructor(private readonly healthService: HealthService) {}
 
   @SubscribeMessage('createHealth')
-  create(@MessageBody() createHealthDto: CreateHealthDto) {
-    return this.healthService.create(createHealthDto);
+  create() {
+    return this.healthService.create();
   }
 
   @SubscribeMessage('findAllHealth')
@@ -28,7 +27,7 @@ export class HealthGateway {
 
   @SubscribeMessage('updateHealth')
   update(@MessageBody() updateHealthDto: UpdateHealthDto) {
-    return this.healthService.update(updateHealthDto.id, updateHealthDto);
+    return this.healthService.update(updateHealthDto.id);
   }
 
   @SubscribeMessage('removeHealth')

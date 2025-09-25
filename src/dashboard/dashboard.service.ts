@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
 
@@ -461,7 +460,8 @@ export class DashboardService {
       const optionCounts = new Map<string, number>();
 
       question.answers.forEach((response) => {
-        const value = (response.answer as any).value;
+        const answer = response.answer as { value: string };
+        const value = answer.value || 'N/A';
         optionCounts.set(value, (optionCounts.get(value) || 0) + 1);
       });
 
@@ -496,12 +496,15 @@ export class DashboardService {
       type: question.type,
       blockTitle: question.block.title,
       totalResponses: question.answers.length,
-      responses: question.answers.map((r) => ({
-        value: (r.answer as any).value,
-        createdAt: r.createdAt,
-        user: r.user.name,
-        userRole: r.user.role,
-      })),
+      responses: question.answers.map((r) => {
+        const answer = r.answer as { value: string };
+        return {
+          value: answer.value || 'N/A',
+          createdAt: r.createdAt,
+          user: r.user.name,
+          userRole: r.user.role,
+        };
+      }),
     };
   }
 

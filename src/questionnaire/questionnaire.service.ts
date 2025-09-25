@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
 import { CreateBlockResponseDto } from './dto/create-response.dto';
 
@@ -146,5 +146,54 @@ export class QuestionnaireService {
     });
 
     return { blockTitle: blockTitle?.title, userAnswers };
+  }
+
+  // Verifica se o usuário tem acesso ao bloco e se já respondeu
+  async checkBlockAccess(blockId: string, userId: string) {
+    // Verifica se o bloco existe
+    const block = await this.prisma.block.findUnique({
+      where: { id: blockId },
+      select: {
+        id: true,
+        title: true,
+        questionnaire: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+    });
+
+    if (!block) {
+      throw new NotFoundException('Block not found');
+    }
+
+    // Conta o total de questões no bloco
+    const totalQuestions = await this.prisma.question.count({
+      where: { blockId: blockId },
+    });
+
+    // Conta quantas questões o usuário já respondeu neste bloco
+    const answeredQuestions = await this.prisma.userAnswer.count({
+      where: {
+        userId: userId,
+        question: {
+          blockId: blockId,
+        },
+      },
+    });
+
+    // Usuário já respondeu se o número de respostas é igual ao total de questões
+    const hasAnswered =
+      answeredQuestions === totalQuestions && totalQuestions > 0;
+
+    // Pode responder se tem acesso e ainda não respondeu
+    const canAnswer = !hasAnswered;
+
+    return {
+      canAccess: canAnswer,
+      blockTitle: block.title,
+    };
   }
 }

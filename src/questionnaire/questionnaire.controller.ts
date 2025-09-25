@@ -208,6 +208,88 @@ Retorna todas as questões de um bloco específico.
   }
 
   @ApiOperation({
+    summary: '🔐 Verificar Acesso ao Bloco',
+    description: `
+### Validar Acesso do Usuário
+
+Verifica se o usuário tem acesso ao bloco e se já respondeu as questões.
+
+**Requer:** Token JWT válido
+    `,
+  })
+  @ApiBearerAuth('bearer')
+  @ApiParam({
+    name: 'id',
+    description: 'ID do bloco de questões',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiQuery({
+    name: 'userId',
+    description: 'ID do usuário para verificar acesso',
+    required: true,
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Status de acesso do usuário ao bloco',
+    schema: {
+      type: 'object',
+      properties: {
+        hasAccess: {
+          type: 'boolean',
+          example: true,
+          description: 'Se o usuário tem acesso ao bloco',
+        },
+        hasAnswered: {
+          type: 'boolean',
+          example: false,
+          description: 'Se o usuário já respondeu este bloco',
+        },
+        canAnswer: {
+          type: 'boolean',
+          example: true,
+          description:
+            'Se o usuário pode responder agora (tem acesso e não respondeu)',
+        },
+        blockTitle: {
+          type: 'string',
+          example: 'Bem-estar Emocional',
+          description: 'Título do bloco',
+        },
+        totalQuestions: {
+          type: 'number',
+          example: 5,
+          description: 'Número total de questões no bloco',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Usuário não tem acesso a este bloco',
+    schema: {
+      type: 'object',
+      properties: {
+        statusCode: { type: 'number', example: 403 },
+        message: { type: 'string', example: 'Access denied to this block' },
+        error: { type: 'boolean', example: true },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Bloco ou usuário não encontrado',
+  })
+  @Get('/blocks/:id/access')
+  @HttpCode(HttpStatus.OK)
+  checkBlockAccess(
+    @Param('id') blockId: string,
+    @Query('userId') userId: string,
+  ) {
+    return this.questionnaireService.checkBlockAccess(blockId, userId);
+  }
+
+  @ApiOperation({
     summary: '🔍 Obter Questionário por ID',
     description: `
 ### Questionário Específico

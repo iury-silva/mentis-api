@@ -11,6 +11,7 @@ import { HealthModule } from './health/health.module';
 import { UploadModule } from './upload/upload.module';
 import { ConfigModule } from '@nestjs/config';
 import { OciStorageModule } from './oci-storage/oci-storage.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { OciStorageModule } from './oci-storage/oci-storage.module';
     UploadModule,
     ConfigModule.forRoot({ isGlobal: true }),
     OciStorageModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [

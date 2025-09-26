@@ -2,6 +2,7 @@ import {
   ExecutionContext,
   Injectable,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -11,10 +12,19 @@ export class LocalAuthGuard extends AuthGuard('local') {
     return super.canActivate(context);
   }
 
-  handleRequest(err: any, user: any) {
-    if (err || !user) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      throw new UnauthorizedException(err?.message);
+  handleRequest(err: unknown, user: any) {
+    if (err) {
+      throw new UnauthorizedException(
+        (err as Error)?.message || 'Unauthorized',
+      );
+    }
+
+    if (!user) {
+      throw new BadRequestException({
+        statusCode: 400,
+        message: 'Invalid credentials',
+        error: 'Bad Request',
+      });
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return

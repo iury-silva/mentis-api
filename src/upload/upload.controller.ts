@@ -5,6 +5,7 @@
 import {
   Controller,
   Post,
+  Body,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -19,7 +20,10 @@ export class UploadController {
 
   @Post('file')
   @UseInterceptors(FileInterceptor('file')) // 'file' é o nome do campo no form-data
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('folderPath') folderPath?: string,
+  ): Promise<{ url: string }> {
     if (!file) {
       throw new Error('Arquivo não enviado.');
     }
@@ -34,8 +38,18 @@ export class UploadController {
       file.buffer,
       uniqueFileName,
       file.mimetype,
+      folderPath,
     );
 
     return { url: fileUrl };
+  }
+
+  @Post('presigned-url')
+  async generatePresignedUrl(
+    @Body('fileName') fileName: string,
+  ): Promise<{ url: string }> {
+    const url =
+      await this.ociStorageService.generatePresignedUploadUrl(fileName);
+    return { url };
   }
 }

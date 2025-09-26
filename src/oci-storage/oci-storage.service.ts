@@ -45,18 +45,23 @@ export class OciService {
     fileBuffer: Buffer,
     fileName: string,
     contentType: string,
+    folderPath?: string,
   ): Promise<string> {
+    const objectName = folderPath ? `${folderPath}/${fileName}` : fileName;
+
+    console.log('Uploading to bucket:', objectName);
+
     const request: objectstorage.requests.PutObjectRequest = {
       bucketName: this.bucketName,
       namespaceName: this.namespaceName,
-      objectName: fileName,
+      objectName: objectName,
       putObjectBody: fileBuffer,
       contentType: contentType,
     };
 
     await this.client.putObject(request);
 
-    return `https://objectstorage.${this.configService.get<string>('OCI_REGION')}.oraclecloud.com/n/${this.namespaceName}/b/${this.bucketName}/o/${fileName}`;
+    return `https://objectstorage.${this.configService.get<string>('OCI_REGION')}.oraclecloud.com/n/${this.namespaceName}/b/${this.bucketName}/o/${objectName}`;
   }
 
   // Método extra para URL pré-assinada (opcional)

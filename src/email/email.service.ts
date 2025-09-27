@@ -28,4 +28,30 @@ export class EmailService {
       };
     }
   }
+
+  async sendEmail(options: {
+    to: string;
+    subject: string;
+    context: any;
+    template: string;
+  }) {
+    try {
+      const res = await this.mailerService.sendMail({
+        to: options.to,
+        subject: options.subject,
+        template: options.template,
+        context: options.context || {},
+      });
+      return {
+        message: 'E-mail enviado com sucesso',
+        response: res,
+      };
+    } catch (error) {
+      console.error('Erro ao enviar e-mail:', error);
+      return {
+        message: 'Erro ao enviar e-mail',
+        error,
+      };
+    }
+  }
 }

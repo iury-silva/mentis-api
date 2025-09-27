@@ -42,6 +42,12 @@ export class CreateBlockResponseDto {
   userId: string;
 
   @ApiProperty({
+    description: 'ID do bloco sendo respondido',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  blockId: string;
+
+  @ApiProperty({
     description: 'Array com todas as respostas do bloco',
     type: [ResponseItemDto],
     example: [

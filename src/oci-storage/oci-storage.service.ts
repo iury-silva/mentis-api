@@ -43,11 +43,10 @@ export class OciService {
 
   async uploadFile(
     fileBuffer: Buffer,
-    fileName: string,
     contentType: string,
-    folderPath?: string,
+    folderPath: string,
   ): Promise<string> {
-    const objectName = folderPath ? `${folderPath}/${fileName}` : fileName;
+    const objectName = folderPath;
 
     console.log('Uploading to bucket:', objectName);
 
@@ -84,5 +83,11 @@ export class OciService {
     return `https://objectstorage.${this.configService.get<string>(
       'OCI_REGION',
     )}.oraclecloud.com${response.preauthenticatedRequest.accessUri}`;
+  }
+
+  async getFileByFileName(fileName: string): Promise<Buffer> {
+    return await Promise.resolve(
+      `https://objectstorage.${this.configService.get<string>('OCI_REGION')}.oraclecloud.com/n/${this.namespaceName}/b/${this.bucketName}/o/${fileName}` as unknown as Buffer,
+    );
   }
 }

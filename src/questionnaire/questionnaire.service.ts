@@ -1,10 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
 import { CreateBlockResponseDto } from './dto/create-response.dto';
+import { EmailService } from 'src/email/email.service';
+import { OciService } from 'src/oci-storage/oci-storage.service';
 
 @Injectable()
 export class QuestionnaireService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
+    private readonly ociService: OciService,
+  ) {}
 
   // retorna todos os questionários com blocos e isCompleted (sem perguntas)
   async findAll(userId?: string) {
@@ -107,23 +113,64 @@ export class QuestionnaireService {
   }
 
   async saveBlockResponses(responseDto: CreateBlockResponseDto) {
-    const { userId, responses } = responseDto;
+    const { userId, responses, blockId } = responseDto;
 
-    // Salva as respostas
-    for (const response of responses) {
-      await this.prisma.userAnswer.create({
-        data: {
-          userId,
-          questionId: response.questionId,
-          answer: { value: response.value },
+    try {
+      // Salva as respostas
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, name: true },
+      });
+
+      console.log('User found:', user);
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      for (const response of responses) {
+        await this.prisma.userAnswer.create({
+          data: {
+            userId,
+            questionId: response.questionId,
+            answer: { value: response.value },
+          },
+        });
+      }
+
+      const block = await this.prisma.block.findUnique({
+        where: { id: blockId },
+        include: {
+          questionnaire: {
+            select: { id: true, title: true },
+          },
         },
       });
-    }
 
-    return {
-      message: 'Respostas salvas com sucesso',
-      savedResponses: responses.length,
-    };
+      const downloadLink = await this.ociService.getFileByFileName(
+        `questionnaires/${block?.questionnaire.id}/${blockId}`,
+      );
+
+      await this.emailService.sendEmail({
+        to: user.email,
+        subject: 'Bonificação por completar o questionário',
+        context: {
+          userName: user.name,
+          questionnaireTitle: block?.questionnaire.title,
+          downloadLink,
+        },
+        template: 'bonification',
+      });
+
+      return {
+        message: 'Respostas salvas com sucesso',
+        responsesSaved: responses.length,
+      };
+    } catch (error) {
+      // Log do erro para depuração
+      console.error('Erro ao salvar respostas:', error);
+      throw new NotFoundException('Erro ao salvar respostas');
+    }
   }
 
   async getUserResponses(userId: string, blockId: string) {

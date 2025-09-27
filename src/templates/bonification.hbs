@@ -1,0 +1,241 @@
+<html lang='pt-BR'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <meta name='color-scheme' content='light dark' />
+    <title>Material Liberado - Mentis</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        background: #f5f5f5;
+        color: #333;
+        padding: 20px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #000;
+          color: #fff;
+        }
+      }
+
+      .container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .container {
+          background: #111;
+          border: 1px solid #333;
+        }
+      }
+
+      /* Header */
+      .header {
+        background: linear-gradient(135deg, #f26a5e 0%, #764ba2 100%);
+        padding: 40px 20px;
+        text-align: center;
+        color: #fff;
+      }
+
+      .header h1 {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .header p {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      /* Content */
+      .content {
+        padding: 30px 20px;
+      }
+
+      .title {
+        font-size: 20px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 8px;
+        color: #333;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .title {
+          color: #fff;
+        }
+      }
+
+      .subtitle {
+        font-size: 14px;
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .subtitle {
+          color: #999;
+        }
+      }
+
+      .message {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 6px;
+        margin: 20px 0;
+        border-left: 3px solid #f26a5e;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .message {
+          background: #222;
+          border-left-color: #f26a5e;
+        }
+      }
+
+      .message p {
+        font-size: 15px;
+        color: #555;
+        margin: 0;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .message p {
+          color: #ccc;
+        }
+      }
+
+      .cta {
+        text-align: center;
+        margin: 30px 0;
+      }
+
+      .button {
+        display: inline-block;
+        background: linear-gradient(135deg, #f26a5e 0%, #764ba2 100%);
+        color: #fff !important;
+        text-decoration: none;
+        padding: 14px 28px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 15px;
+      }
+
+      .note {
+        font-size: 12px;
+        color: #999;
+        text-align: center;
+        margin-top: 12px;
+      }
+
+      /* Footer */
+      .footer {
+        background: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+        border-top: 1px solid #eee;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .footer {
+          background: #222;
+          border-top-color: #333;
+        }
+      }
+
+      .footer p {
+        font-size: 13px;
+        color: #666;
+        margin: 4px 0;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .footer p {
+          color: #999;
+        }
+      }
+
+      /* Mobile */
+      @media (max-width: 480px) {
+        body {
+          padding: 10px;
+        }
+
+        .header {
+          padding: 30px 15px;
+        }
+
+        .content {
+          padding: 20px 15px;
+        }
+
+        .button {
+          padding: 12px 24px;
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class='container'>
+
+      <div class='header'>
+        <img
+          src='https://mentis.ia.br/images/icone-mentisV2.png'
+          alt='Congratulations'
+          width='40'
+          style='display: block; margin: 0 auto 20px auto;'
+        />
+
+        <h1>Parabéns, {{userName}}!</h1>
+        <p>Seu material está pronto</p>
+      </div>
+
+      <div class='content'>
+        <h2 class='title'>🎉 Conteúdo Liberado</h2>
+        <p class='subtitle'>Obrigado por completar "{{questionnaireTitle}}"</p>
+
+        <div class='message'>
+          <p>Preparamos materiais exclusivos de desenvolvimento pessoal
+            especialmente para você. Clique no botão abaixo para fazer o
+            download.</p>
+        </div>
+
+        <div class='cta'>
+          <a href='{{downloadLink}}' class='button'>Baixar Material</a>
+          <p class='note'>Link válido por 30 dias</p>
+        </div>
+
+      </div>
+
+      <div class='footer'>
+        <img
+          src='https://mentis.ia.br/images/logo-mentisV2.png'
+          alt='Mentis Logo'
+          width='100'
+          style='margin-bottom: 10px;'
+        />
+        <p>Desenvolvimento Pessoal e Bem-estar</p>
+        <p>Obrigado por participar!</p>
+      </div>
+
+    </div>
+
+  </body>
+</html>

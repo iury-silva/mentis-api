@@ -12,6 +12,7 @@ import { UploadModule } from './upload/upload.module';
 import { ConfigModule } from '@nestjs/config';
 import { OciStorageModule } from './oci-storage/oci-storage.module';
 import { EmailModule } from './email/email.module';
+import { OpenaiModule } from './openai/openai.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { EmailModule } from './email/email.module';
     ConfigModule.forRoot({ isGlobal: true }),
     OciStorageModule,
     EmailModule,
+    OpenaiModule,
   ],
   controllers: [AppController],
   providers: [

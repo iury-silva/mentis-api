@@ -13,6 +13,7 @@ import { ConfigModule } from '@nestjs/config';
 import { OciStorageModule } from './oci-storage/oci-storage.module';
 import { EmailModule } from './email/email.module';
 import { OpenaiModule } from './openai/openai.module';
+import { LoaderioController } from './loaderio/loaderio.controller';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { OpenaiModule } from './openai/openai.module';
     EmailModule,
     OpenaiModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, LoaderioController],
   providers: [
     AppService,
     {

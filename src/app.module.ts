@@ -14,6 +14,7 @@ import { OciStorageModule } from './oci-storage/oci-storage.module';
 import { EmailModule } from './email/email.module';
 import { OpenaiModule } from './openai/openai.module';
 import { LoaderioController } from './loaderio/loaderio.controller';
+import { MapsModule } from './maps/maps.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { LoaderioController } from './loaderio/loaderio.controller';
     OciStorageModule,
     EmailModule,
     OpenaiModule,
+    MapsModule,
   ],
   controllers: [AppController, LoaderioController],
   providers: [

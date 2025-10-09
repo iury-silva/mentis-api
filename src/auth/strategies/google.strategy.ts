@@ -36,6 +36,11 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       name: user.name,
       role: user.role,
       avatar: user.avatar,
+      city: user.city,
+      state: user.state,
+      phone: user.phone,
+      type_login: user.type_login,
+      first_access: user.first_access,
     };
   }
 }

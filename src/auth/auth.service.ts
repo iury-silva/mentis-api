@@ -30,6 +30,11 @@ export class AuthService {
       email: user.email ?? '',
       role: user.role,
       avatar: user.avatar ?? '',
+      city: user.city ?? '',
+      state: user.state ?? '',
+      phone: user.phone ?? '',
+      type_login: user.type_login ?? 'normal',
+      first_access: user.first_access ?? false,
     };
 
     return {
@@ -40,6 +45,11 @@ export class AuthService {
         name: user.name,
         role: user.role,
         avatar: user.avatar || '',
+        city: user.city || '',
+        state: user.state || '',
+        phone: user.phone || '',
+        type_login: user.type_login || 'normal',
+        first_access: user.first_access || false,
       },
     };
   }

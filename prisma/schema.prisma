@@ -22,7 +22,12 @@ model User {
   avatar String
   role   String @default("user")
   answers UserAnswer[]
-
+  city   String?
+  state  String?
+  phone  String?
+  type_login String? // ex: "google", "facebook", "email"
+  first_access Boolean @default(true)
+  
   // opcional: controle de progresso
   currentBlock Int?
   questionnaireCompleted Boolean @default(false)

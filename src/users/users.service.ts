@@ -22,6 +22,7 @@ export class UsersService {
           ...createUserDto,
           avatar: createUserDto.avatar || '',
           password: hashedPassword,
+          type_login: 'normal',
         },
       });
     } catch {
@@ -79,9 +80,43 @@ export class UsersService {
           name: params.name,
           avatar: params.avatar || '',
           password: hashedPassword,
+          type_login: 'oauth',
         },
       });
     }
     return user;
+  }
+
+  async setFirstAccess(email: string) {
+    try {
+      const user = await this.prisma.user.update({
+        where: { email },
+        data: { first_access: false },
+      });
+      return user;
+    } catch {
+      throw new Error('Error updating first access');
+    }
+  }
+
+  async update(id: string, data: Partial<CreateUserDto>) {
+    try {
+      return await this.prisma.user.update({
+        where: { id },
+        data,
+      });
+    } catch {
+      throw new Error('Error updating user');
+    }
+  }
+
+  async findOne(id: string) {
+    try {
+      return await this.prisma.user.findUnique({
+        where: { id },
+      });
+    } catch {
+      throw new Error('Error fetching user');
+    }
   }
 }

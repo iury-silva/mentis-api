@@ -5,6 +5,11 @@ export class CreateAuthDto {
   name?: string;
   role?: string;
   avatar?: string;
+  city?: string;
+  state?: string;
+  phone?: string;
+  type_login?: string;
+  first_access?: boolean;
   access_token?: string;
   createdAt?: Date;
   updatedAt?: Date;

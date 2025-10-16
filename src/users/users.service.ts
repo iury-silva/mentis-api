@@ -87,10 +87,10 @@ export class UsersService {
     return user;
   }
 
-  async setFirstAccess(email: string) {
+  async setFirstAccess(id: string) {
     try {
       const user = await this.prisma.user.update({
-        where: { email },
+        where: { id },
         data: { first_access: false },
       });
       return user;

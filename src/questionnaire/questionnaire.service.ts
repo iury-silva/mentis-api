@@ -113,7 +113,7 @@ export class QuestionnaireService {
   }
 
   async saveBlockResponses(responseDto: CreateBlockResponseDto) {
-    const { userId, responses, blockId } = responseDto;
+    const { userId, responses } = responseDto;
 
     try {
       // Salva as respostas
@@ -138,29 +138,29 @@ export class QuestionnaireService {
         });
       }
 
-      const block = await this.prisma.block.findUnique({
-        where: { id: blockId },
-        include: {
-          questionnaire: {
-            select: { id: true, title: true },
-          },
-        },
-      });
+      // const block = await this.prisma.block.findUnique({
+      //   where: { id: blockId },
+      //   include: {
+      //     questionnaire: {
+      //       select: { id: true, title: true },
+      //     },
+      //   },
+      // });
 
-      const downloadLink = await this.ociService.getFileByFileName(
-        `questionnaires/${block?.questionnaire.id}/${blockId}`,
-      );
+      // const downloadLink = await this.ociService.getFileByFileName(
+      //   `questionnaires/${block?.questionnaire.id}/${blockId}`,
+      // );
 
-      await this.emailService.sendEmail({
-        to: user.email,
-        subject: 'Bonificação por completar o questionário',
-        context: {
-          userName: user.name,
-          questionnaireTitle: block?.questionnaire.title,
-          downloadLink,
-        },
-        template: 'bonification',
-      });
+      // await this.emailService.sendEmail({
+      //   to: user.email,
+      //   subject: 'Bonificação por completar o questionário',
+      //   context: {
+      //     userName: user.name,
+      //     questionnaireTitle: block?.questionnaire.title,
+      //     downloadLink,
+      //   },
+      //   template: 'bonification',
+      // });
 
       return {
         message: 'Respostas salvas com sucesso',
@@ -242,5 +242,26 @@ export class QuestionnaireService {
       canAccess: canAnswer,
       blockTitle: block.title,
     };
+  }
+  async getBonusLink(blockId: string) {
+    // Verifica se o bloco existe
+    try {
+      const block = await this.prisma.block.findUnique({
+        where: { id: blockId },
+      });
+
+      if (!block) {
+        throw new NotFoundException('Block not found');
+      }
+
+      return {
+        link: block.bonus,
+        status: 'success',
+        statusCode: 200,
+      };
+    } catch (error) {
+      console.error('Error fetching block:', error);
+      throw new NotFoundException('Block not found');
+    }
   }
 }

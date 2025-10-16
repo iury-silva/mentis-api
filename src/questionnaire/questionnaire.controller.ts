@@ -76,4 +76,10 @@ export class QuestionnaireController {
   ) {
     return this.questionnaireService.getUserResponses(userId, blockId);
   }
+
+  @Get('bonus/:blockId')
+  @HttpCode(HttpStatus.OK)
+  getBonusLink(@Param('blockId') blockId: string) {
+    return this.questionnaireService.getBonusLink(blockId);
+  }
 }

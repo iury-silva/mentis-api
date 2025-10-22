@@ -27,6 +27,8 @@ model User {
   phone  String?
   type_login String? // ex: "google", "facebook", "email"
   first_access Boolean @default(true)
+  verify_email Boolean @default(false)
+  verify_token String? // token para verificação de email
   
   // opcional: controle de progresso
   currentBlock Int?

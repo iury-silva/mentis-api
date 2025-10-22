@@ -9,6 +9,8 @@ export interface UserPayload {
   phone?: string;
   type_login?: string;
   first_access?: boolean;
+  verify_email?: boolean;
+  verify_token?: string;
   iat?: number;
   exp?: number;
 }

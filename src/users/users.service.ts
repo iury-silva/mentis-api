@@ -1,12 +1,16 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'src/database/prisma.service';
+import { EmailService } from 'src/email/email.service';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
+  ) {}
   async create(createUserDto: CreateUserDto) {
     if (
       await this.prisma.user.findUnique({
@@ -17,14 +21,28 @@ export class UsersService {
     }
     try {
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-      return await this.prisma.user.create({
+      const tokenEmail = crypto.randomBytes(16).toString('hex');
+      const user = await this.prisma.user.create({
         data: {
           ...createUserDto,
           avatar: createUserDto.avatar || '',
           password: hashedPassword,
           type_login: 'normal',
+          verify_token: tokenEmail,
         },
       });
+
+      await this.emailService.sendEmail({
+        to: createUserDto.email,
+        subject: 'Verificação de Email - Mentis',
+        context: {
+          name: createUserDto.name,
+          verifyLink: `${process.env.FRONT_BASE_URL}/verify-email?token=${tokenEmail}`,
+        },
+        template: 'verify-email',
+      });
+
+      return user;
     } catch {
       throw new Error('Error creating user');
     }
@@ -80,6 +98,7 @@ export class UsersService {
           name: params.name,
           avatar: params.avatar || '',
           password: hashedPassword,
+          verify_email: true,
           type_login: 'oauth',
         },
       });
@@ -118,5 +137,19 @@ export class UsersService {
     } catch {
       throw new Error('Error fetching user');
     }
+  }
+
+  async verifyEmail(token: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { verify_token: token },
+    });
+    if (!user) {
+      throw new BadRequestException('Invalid verification token');
+    }
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { verify_email: true, verify_token: null },
+    });
+    return { message: 'Email verified successfully' };
   }
 }

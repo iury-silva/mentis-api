@@ -10,6 +10,8 @@ export class CreateAuthDto {
   phone?: string;
   type_login?: string;
   first_access?: boolean;
+  verify_email?: boolean;
+  verify_token?: string;
   access_token?: string;
   createdAt?: Date;
   updatedAt?: Date;

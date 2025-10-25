@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -47,5 +48,12 @@ export class UsersController {
   @Get('/get-profile/:id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
+  }
+
+  @Get('/verify-email')
+  @IsPublic()
+  verifyEmail(@Req() req: { query: { token: string } }) {
+    const { token } = req.query;
+    return this.usersService.verifyEmail(token);
   }
 }

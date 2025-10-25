@@ -33,9 +33,18 @@ export class AuthService {
       city: user.city ?? '',
       state: user.state ?? '',
       phone: user.phone ?? '',
+      verify_email: user.verify_email ?? false,
+      verify_token: user.verify_token ?? '',
       type_login: user.type_login ?? 'normal',
       first_access: user.first_access ?? false,
     };
+    if (!user.verify_email) {
+      return {
+        message: 'Email not verified',
+        status: 401,
+        error: 'Unauthorized',
+      };
+    }
 
     return {
       access_token: this.jwtService.sign(payload),

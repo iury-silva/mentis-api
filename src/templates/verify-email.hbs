@@ -1,13 +1,86 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verificação de Email - Mentis</title>
-</head>
-<body>
-  <h1>Olá {{name}},</h1>
-  <p>Por favor, verifique seu email clicando no link abaixo:</p>
-  <a href="{{verifyLink}}">Verificar Email</a>
-</body>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Verificação de Email - Mentis</title>
+  </head>
+  <style>
+    body {
+      font-family:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    a {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #f26a5e;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+
+    a:hover {
+      background-color: #f26a5e;
+    }
+
+    .logo-banner {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #f26a5e55;
+      padding: 20px;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+  </style>
+  <body>
+    <section>
+      <div class='logo-banner'>
+        <img
+          src='https://mentis.ia.br/images/logo-mentisV2.png'
+          alt='Mentis Logo'
+          width='150'
+          style='margin: 0 auto; display: block;'
+        />
+      </div>
+      <div class='container'>
+        <h1>Verifique seu email</h1>
+        <p>
+          Obrigado por se registrar na Mentis
+          {{name}}! Por favor, clique no botão abaixo para verificar seu
+          endereço de email.
+        </p>
+        <a href='{{verifyLink}}'>Verificar Email</a>
+      </div>
+      <footer>
+        <p
+          style='text-align: center; font-size: 12px; color: #888; margin-top: 20px;'
+        >
+          Se você não se registrou na Mentis, por favor ignore este email.
+        </p>
+      </footer>
+    </section>
+  </body>
 </html>

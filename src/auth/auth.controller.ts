@@ -40,7 +40,6 @@ export class AuthController {
   @Get('auth/google/redirect')
   @UseGuards(GoogleAuthGuard)
   googleRedirect(@Req() req: AuthRequest, @Res() res: Response) {
-    console.log('RES AQUI >>>>>>>>>', req);
     const userToken = this.authService.login(req.user);
 
     //redirecionando para uma rota no front para validar usuario e salvar o token do google

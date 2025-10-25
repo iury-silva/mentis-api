@@ -38,7 +38,6 @@ export class AuthService {
       type_login: user.type_login ?? 'normal',
       first_access: user.first_access ?? false,
     };
-
     if (!user.verify_email) {
       return {
         message: 'Email not verified',

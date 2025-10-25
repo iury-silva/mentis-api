@@ -39,6 +39,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       city: user.city,
       state: user.state,
       phone: user.phone,
+      verify_email: user.verify_email,
+      verify_token: user.verify_token,
       type_login: user.type_login,
       first_access: user.first_access,
     };

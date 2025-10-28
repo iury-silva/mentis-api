@@ -15,23 +15,26 @@ datasource db {
 }
 
 model User {
-  id    String @id @default(uuid())
-  email String @unique
-  name  String
-  password String
-  avatar String
-  role   String @default("user")
-  answers UserAnswer[]
-  city   String?
-  state  String?
-  phone  String?
-  type_login String? // ex: "google", "facebook", "email"
+  id           String  @id @default(uuid())
+  email        String  @unique
+  name         String
+  password     String
+  avatar       String
+  role         String  @default("user")
+  city         String?
+  state        String?
+  phone        String?
+  type_login   String? // ex: "google", "facebook", "email"
   first_access Boolean @default(true)
   verify_email Boolean @default(false)
   verify_token String? // token para verificação de email
-  
+
+  // relações
+  answers UserAnswer[]
+  moods   MoodRecord[]
+
   // opcional: controle de progresso
-  currentBlock Int?
+  currentBlock           Int?
   questionnaireCompleted Boolean @default(false)
 
   createdAt DateTime @default(now())
@@ -44,7 +47,7 @@ model Questionnaire {
   id          String   @id @default(uuid())
   title       String
   description String?
-  terms       String?   // termos e condições
+  terms       String? // termos e condições
   blocks      Block[]
   createdAt   DateTime @default(now())
 
@@ -52,26 +55,28 @@ model Questionnaire {
 }
 
 model Block {
-  id              String   @id @default(uuid())
+  id              String        @id @default(uuid())
   questionnaireId String
   questionnaire   Questionnaire @relation(fields: [questionnaireId], references: [id])
-  order           Int       // 1,2,3... => ordenação do bloco
+  order           Int // 1,2,3... => ordenação do bloco
   title           String
   description     String?
-  bonus           String?   // ex: "documentário", "ebook", "curso"
+  bonus           String? // ex: "documentário", "ebook", "curso"
   questions       Question[]
 
   @@map("block")
 }
 
 model Question {
-  id        String   @id @default(uuid())
-  blockId   String
-  block     Block    @relation(fields: [blockId], references: [id])
-  type      String   // "multiple_choice" | "text" | etc
-  question  String
-  options   Json?    // opções se múltipla escolha
-  answers   UserAnswer[]
+  id       String       @id @default(uuid())
+  blockId  String
+  block    Block        @relation(fields: [blockId], references: [id])
+  // questionOrder Int?   // opcional agora
+  order    Int? // 1,2,3... => ordenação da questão dentro do bloco
+  type     String // "multiple_choice" | "text" | etc
+  question String
+  options  Json? // opções se múltipla escolha
+  answers  UserAnswer[]
 
   @@map("question")
 }
@@ -86,4 +91,37 @@ model UserAnswer {
   createdAt  DateTime @default(now())
 
   @@map("user_answer")
+}
+
+model MoodRecord {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Scores diários
+  score_mood    Int // 1-5, humor geral
+  score_anxiety Int // 1-5, ansiedade
+  score_energy  Int // 1-5, energia/disposição
+  score_sleep   Int // 1-5, qualidade do sono
+  score_stress  Int // 1-5, estresse
+
+  // Campo opcional de texto para contexto emocional
+  notes String?
+
+  // Preparado para voz no futuro
+  // voiceUsed  Boolean  @default(false)
+  // audioPath  String?  // URL ou caminho do arquivo de áudio
+
+  // Insight gerado pela IA (texto)
+  ai_insight  String?
+  ai_features Json? // dados adicionais da análise da IA
+
+  // Garantir 1 registro por dia por usuário
+  date DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@map("mood_record")
 }

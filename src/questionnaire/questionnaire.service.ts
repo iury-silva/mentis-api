@@ -76,6 +76,7 @@ export class QuestionnaireService {
   async getQuestionsByBlock(blockId: string) {
     const questions = await this.prisma.question.findMany({
       where: { blockId },
+      orderBy: { order: 'asc' },
     });
     return questions;
   }

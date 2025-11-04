@@ -68,15 +68,16 @@ export class UsersService {
 
   async remove(id: string) {
     try {
-      await this.prisma.userAnswer.deleteMany({
-        where: { userId: id },
-      });
-      await this.prisma.user.delete({
-        where: { id },
-      });
+      await this.prisma.$transaction([
+        this.prisma.userAnswer.deleteMany({ where: { userId: id } }),
+        this.prisma.moodRecord.deleteMany({ where: { userId: id } }),
+        this.prisma.consentForm.deleteMany({ where: { userId: id } }),
+        this.prisma.user.delete({ where: { id } }),
+      ]);
 
       return { message: 'User deleted successfully' };
-    } catch {
+    } catch (error) {
+      console.error('Error deleting user with id:', error);
       throw new Error('Error deleting user');
     }
   }

@@ -32,6 +32,7 @@ model User {
   // relações
   answers UserAnswer[]
   moods   MoodRecord[]
+  consent ConsentForm?
 
   // opcional: controle de progresso
   currentBlock           Int?
@@ -124,4 +125,18 @@ model MoodRecord {
 
   @@unique([userId, date])
   @@map("mood_record")
+}
+
+model ConsentForm {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id]) 
+  cpf       String   // CPF do usuário
+  city      String
+  name      String
+  agreedAt  DateTime @default(now())
+
+  createdAt DateTime @default(now())
+
+  @@map("consent_form")
 }

@@ -35,7 +35,8 @@ export class QuestionnaireService {
             questionnaire.blocks,
             userId,
           );
-          return { ...questionnaire, blocks };
+          const hasAcceptedTerms = await this.hasAcceptedTerms(userId);
+          return { ...questionnaire, blocks, hasAcceptedTerms };
         }),
       );
       return questionnairesWithStatus;
@@ -43,7 +44,38 @@ export class QuestionnaireService {
 
     return questionnaires;
   }
+  //criar consentimento
+  async createConsent(
+    userId: string,
+    cpf: string,
+    name: string,
+    city: string,
+  ): Promise<void> {
+    try {
+      await this.prisma.consentForm.create({
+        data: {
+          userId,
+          cpf,
+          name,
+          city,
+        },
+      });
+    } catch (error) {
+      console.error('Error creating consent form:', error);
+      throw new NotFoundException('Error creating consent form');
+    }
+  }
+  //verifica se o usuario aceitou os termos por questionario
+  async hasAcceptedTerms(userId: string): Promise<boolean> {
+    const user = await this.prisma.consentForm.findUnique({
+      where: { userId },
+    });
 
+    if (!user) {
+      return false;
+    }
+    return true;
+  }
   // calcula isCompleted para cada bloco sem trazer perguntas
   private async getBlocksWithCompletionStatus(
     blocks: { id: string }[],
@@ -188,9 +220,11 @@ export class QuestionnaireService {
             id: true,
             question: true,
             blockId: true,
+            order: true,
           },
         },
       },
+      orderBy: { question: { order: 'asc' } },
     });
 
     return { blockTitle: blockTitle?.title, userAnswers };

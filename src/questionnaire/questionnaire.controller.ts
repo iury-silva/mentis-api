@@ -9,7 +9,9 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
+import type { AuthRequest } from 'src/auth/models/AuthRequest';
 import { QuestionnaireService } from './questionnaire.service';
 import { CreateQuestionnaireDto } from './dto/create-questionnaire.dto';
 import { UpdateQuestionnaireDto } from './dto/update-questionnaire.dto';
@@ -81,5 +83,24 @@ export class QuestionnaireController {
   @HttpCode(HttpStatus.OK)
   getBonusLink(@Param('blockId') blockId: string) {
     return this.questionnaireService.getBonusLink(blockId);
+  }
+
+  @Post('consent')
+  @HttpCode(HttpStatus.CREATED)
+  createConsent(
+    @Body()
+    createConsentDto: {
+      cpf: string;
+      name: string;
+      city: string;
+    },
+    @Req() req: AuthRequest,
+  ) {
+    return this.questionnaireService.createConsent(
+      req.user.id || '',
+      createConsentDto.cpf,
+      createConsentDto.name,
+      createConsentDto.city,
+    );
   }
 }

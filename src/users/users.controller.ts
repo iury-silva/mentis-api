@@ -56,4 +56,19 @@ export class UsersController {
     const { token } = req.query;
     return this.usersService.verifyEmail(token);
   }
+
+  @Post('/request-password-reset')
+  @IsPublic()
+  requestPasswordReset(@Body('email') email: string) {
+    return this.usersService.requestPasswordReset(email);
+  }
+
+  @Put('/reset-password')
+  @IsPublic()
+  resetPassword(
+    @Body('token') token: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    return this.usersService.resetPassword(token, newPassword);
+  }
 }

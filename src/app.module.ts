@@ -15,6 +15,7 @@ import { EmailModule } from './email/email.module';
 import { OpenaiModule } from './openai/openai.module';
 import { LoaderioController } from './loaderio/loaderio.controller';
 import { MapsModule } from './maps/maps.module';
+import { MoodRecordModule } from './mood-record/mood-record.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { MapsModule } from './maps/maps.module';
     EmailModule,
     OpenaiModule,
     MapsModule,
+    MoodRecordModule,
   ],
   controllers: [AppController, LoaderioController],
   providers: [

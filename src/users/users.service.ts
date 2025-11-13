@@ -153,4 +153,43 @@ export class UsersService {
     });
     return { message: 'Email verified successfully' };
   }
+
+  async requestPasswordReset(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      throw new BadRequestException('Email not found');
+    }
+    const resetToken = crypto.randomBytes(16).toString('hex');
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { reset_token: resetToken },
+    });
+
+    await this.emailService.sendEmail({
+      to: email,
+      subject: 'Password Reset - Mentis',
+      context: {
+        name: user.name,
+        resetLink: `${process.env.FRONT_BASE_URL}/reset-password?token=${resetToken}`,
+      },
+      template: 'reset-password',
+    });
+
+    return { message: 'Password reset email sent' };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { reset_token: token },
+    });
+    if (!user) {
+      throw new BadRequestException('Invalid reset token');
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedPassword, reset_token: null },
+    });
+    return { message: 'Password reset successfully' };
+  }
 }

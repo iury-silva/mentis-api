@@ -7,6 +7,9 @@ import {
   UseInterceptors,
   Body,
   Req,
+  Query,
+  Delete,
+  Param,
 } from '@nestjs/common';
 import { MoodRecordService } from './mood-record.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -14,19 +17,9 @@ import { CreateMoodDto } from './dto/create-mood-dto';
 import { ResponseMoodDto } from './dto/response-mood.dto';
 import type { AuthRequest } from 'src/auth/models/AuthRequest';
 
-type FetchedData = {
-  status: string;
-};
 @Controller('mood-record')
 export class MoodRecordController {
   constructor(private readonly moodRecordService: MoodRecordService) {}
-
-  @Get('test')
-  async getTestData(): Promise<FetchedData> {
-    const data = (await this.moodRecordService.fetchTestData()) as FetchedData;
-    console.log('Fetched data:', data);
-    return data;
-  }
 
   @Post('analyze-voice')
   @UseInterceptors(FileInterceptor('file'))
@@ -53,5 +46,34 @@ export class MoodRecordController {
       req.user.id,
     )) as ResponseMoodDto;
     return result;
+  }
+
+  // Historico completo com paginacao
+  @Get('history')
+  async getMoodHistory(
+    @Req() req: AuthRequest,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+  ) {
+    return await this.moodRecordService.getMoodHistory(
+      req.user.id,
+      parseInt(page, 10),
+      parseInt(limit, 10),
+    );
+  }
+
+  // Verificar registro de hoje
+  @Get('today')
+  async checkTodayMoodRecord(@Req() req: AuthRequest) {
+    return await this.moodRecordService.hasMoodRecordToday(req.user.id);
+  }
+
+  // Deletar registro de humor
+  @Delete('delete/:id')
+  async deleteMoodRecord(
+    @Req() req: AuthRequest,
+    @Param('id') id: string,
+  ): Promise<{ message: string }> {
+    return await this.moodRecordService.deleteMoodRecord(id, req.user.id);
   }
 }

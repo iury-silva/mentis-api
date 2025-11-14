@@ -12,10 +12,6 @@ import { PrismaService } from 'src/database/prisma.service';
 
 ffmpeg.setFfmpegPath(ffmpegPath as string);
 
-type FetchedData = {
-  status: string;
-};
-
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -93,23 +89,31 @@ export class MoodRecordService {
       role: 'system',
       content: `Você é assistente da plataforma Mentis de bem-estar emocional.
 
-Analise o estado emocional do usuário e retorne APENAS JSON válido neste formato exato:
-{
-  "score_mood": 1-5,
-  "score_anxiety": 1-5,
-  "score_energy": 1-5,
-  "score_sleep": 1-5,
-  "score_stress": 1-5,
-  "notes": "transcrição exata do usuário",
-  "ai_insight": "análise empática breve"
-}
+      Analise o estado emocional do usuário e retorne APENAS JSON válido neste formato exato:
+      {
+        "score_mood": 1-5,
+        "score_anxiety": 1-5,
+        "score_energy": 1-5,
+        "score_sleep": 1-5,
+        "score_stress": 1-5,
+        "notes": "transcrição exata do usuário",
+        "ai_insight": "análise empática breve"
+      }
 
-Regras:
-- Use EXATAMENTE o que foi dito em "notes"
-- Seja empático e preciso no "ai_insight"
-- Retorne APENAS JSON, sem texto extra`,
+      Regras:
+      - Use EXATAMENTE o que foi dito em "notes"
+      - Seja empático e preciso no "ai_insight"
+      - Retorne APENAS JSON, sem texto extra`,
     };
   }
+
+  /*
+   * ----------ENDPOINTS DE ANALISE DE HUMOR----------
+   * 1. POST /mood/analyze-voice - Analisa humor via áudio
+   * 2. POST /mood/analyze-text - Analisa humor via texto
+   * -------------------------------------------------
+   *  $$ INICIO $$
+   */
 
   private async convertToWav(inputBuffer: Buffer): Promise<Buffer> {
     const tempName = `temp_${Date.now()}`;
@@ -133,13 +137,6 @@ Regras:
         })
         .save(outputPath);
     });
-  }
-
-  async fetchTestData(): Promise<FetchedData> {
-    const response = await firstValueFrom(
-      this.httpService.get<FetchedData>('http://localhost:7001/voice'),
-    );
-    return response.data;
   }
 
   async analyzeMood(
@@ -276,30 +273,6 @@ Regras:
     }
   }
 
-  // private async transcribeAudioWithWhisper(
-  //   audioBuffer: Buffer,
-  // ): Promise<string> {
-  //   try {
-  //     // Usar toFile do OpenAI SDK (funciona melhor com Buffer)
-  //     const { toFile } = await import('openai');
-  //     const file = await toFile(audioBuffer, 'audio.wav', {
-  //       type: 'audio/wav',
-  //     });
-
-  //     const transcription = await this.client.audio.transcriptions.create({
-  //       file: file,
-  //       model: 'whisper-1',
-  //       language: 'pt', // Português
-  //       response_format: 'text',
-  //     });
-
-  //     return String(transcription);
-  //   } catch (error) {
-  //     console.error('❌ Error transcribing audio:', error);
-  //     throw new Error('Erro ao transcrever áudio com Whisper');
-  //   }
-  // }
-
   private async transcribeAudioWithWhisper(
     audioBuffer: Buffer,
   ): Promise<string> {
@@ -434,6 +407,127 @@ Regras:
     } catch (error) {
       console.error('❌ Error during mood text analysis:', error);
       throw new Error('Erro ao analisar o humor do texto com OpenAI');
+    }
+  }
+
+  /*
+   *  $$ FIM $$
+   */
+
+  /*
+   *  ---------- ENDPOINTS DE PESQUISA DE HUMOR COM PAGINAÇÃO ----------
+   * 1. GET /mood/history?page=&limit= - Retorna histórico paginado
+   * 2. GET /mood/has-today - Verifica se há registro para hoje
+   * 3. DELETE /mood/:id - Deleta um registro específico
+   * -------------------------------------------------
+   *  $$ INICIO $$
+   */
+  async getMoodHistory(userId?: string, page: number = 1, limit: number = 10) {
+    if (!userId) {
+      throw new Error('User ID is required to fetch mood history');
+    }
+    try {
+      const skip = (page - 1) * limit;
+
+      const [records, totalRecords] = await this.prisma.$transaction([
+        this.prisma.moodRecord.findMany({
+          where: { userId },
+          orderBy: { date: 'desc' },
+          skip,
+          take: limit,
+        }),
+        this.prisma.moodRecord.count({
+          where: { userId },
+        }),
+      ]);
+
+      const totalPages = Math.ceil(totalRecords / limit);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const sanitizedRecords = records.map(({ ai_features, ...record }) => ({
+        ...record,
+        average_mood_score: Math.ceil(
+          (record.score_mood +
+            record.score_anxiety +
+            record.score_energy +
+            record.score_sleep +
+            record.score_stress) /
+            5,
+        ),
+      }));
+
+      return {
+        records: sanitizedRecords,
+        pagination: {
+          totalRecords,
+          totalPages,
+          currentPage: page,
+          pageSize: limit,
+        },
+      };
+    } catch (error) {
+      console.error('❌ Error fetching mood history:', error);
+      throw new Error('Erro ao buscar histórico de humor');
+    }
+  }
+
+  /*
+   *  ------- Verificar registro de hoje ----------
+   */
+  async hasMoodRecordToday(
+    userId?: string,
+  ): Promise<{ hasRecordToday: boolean }> {
+    if (!userId) {
+      throw new Error('User ID is required to check today mood record');
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    try {
+      const record = await this.prisma.moodRecord.findUnique({
+        where: {
+          userId_date: { userId, date: today },
+        },
+      });
+
+      return {
+        hasRecordToday: record ? true : false,
+      };
+    } catch (error) {
+      console.error('❌ Error checking mood record for today:', error);
+      throw new Error('Erro ao verificar registro de humor para hoje');
+    }
+  }
+
+  async deleteMoodRecord(
+    recordId: string,
+    userId?: string,
+  ): Promise<{ message: string }> {
+    if (!userId) {
+      throw new Error('User ID is required to delete mood record');
+    }
+    console.log(recordId, userId);
+    try {
+      const record = await this.prisma.moodRecord.findUnique({
+        where: {
+          id: recordId,
+          userId,
+        },
+      });
+
+      if (!record || record.userId !== userId) {
+        throw new Error('Mood record not found or access denied');
+      }
+
+      await this.prisma.moodRecord.delete({
+        where: {
+          id: recordId,
+          userId,
+        },
+      });
+      return { message: 'Registro de humor deletado com sucesso' };
+    } catch (error) {
+      console.error('❌ Error deleting mood record:', error);
+      throw new Error('Erro ao deletar o registro de humor');
     }
   }
 }

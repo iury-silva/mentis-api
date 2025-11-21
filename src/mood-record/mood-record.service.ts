@@ -9,6 +9,8 @@ import { join } from 'path';
 import OpenAI from 'openai';
 import { CreateMoodDto } from './dto/create-mood-dto';
 import { PrismaService } from 'src/database/prisma.service';
+import puppeteer from 'puppeteer';
+import type { Response } from 'express';
 
 ffmpeg.setFfmpegPath(ffmpegPath as string);
 
@@ -71,6 +73,40 @@ interface AnalyzeTextResult {
   message?: string;
 }
 
+interface ReportUser {
+  name: string;
+  email: string;
+}
+
+interface ReportRecord {
+  date: Date;
+  score_mood: number;
+  score_anxiety: number;
+  score_energy: number;
+  score_sleep: number;
+  score_stress: number;
+  ai_insight?: string | null;
+}
+
+interface ReportStats {
+  totalRecords: number;
+  averages?: {
+    score_mood: number;
+    score_anxiety: number;
+    score_energy: number;
+    score_sleep: number;
+    score_stress: number;
+  } | null;
+  trends?: {
+    score_mood: number;
+    score_anxiety: number;
+    score_energy: number;
+    score_sleep: number;
+    score_stress: number;
+  } | null;
+  streaks?: number;
+}
+
 @Injectable()
 export class MoodRecordService {
   private readonly client: OpenAI;
@@ -97,7 +133,7 @@ export class MoodRecordService {
         "score_sleep": 1-5,
         "score_stress": 1-5,
         "notes": "transcrição exata do usuário",
-        "ai_insight": "análise empática breve"
+        "ai_insight": "análise empática e conselhos úteis sobre o estado emocional e como lidar com ele e melhorar o bem-estar"
       }
 
       Regras:
@@ -340,9 +376,9 @@ export class MoodRecordService {
         {
           role: 'system',
           content: `Você é assistente da plataforma Mentis. Analise o texto do usuário e retorne APENAS JSON neste formato:
-{
-  "ai_insight": "análise empática e breve do estado emocional"
-}`,
+          {
+            "ai_insight": "análise empática e dicas úteis sobre o estado emocional como lidar com ele e melhorar o bem-estar"
+          }`,
         },
         {
           role: 'user',
@@ -353,7 +389,7 @@ export class MoodRecordService {
       const completion = await this.client.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: messages,
-        max_tokens: 150, // Ainda mais reduzido pois só retorna insight
+        max_tokens: 300,
         temperature: 0.5,
         response_format: { type: 'json_object' },
       });
@@ -445,13 +481,16 @@ export class MoodRecordService {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const sanitizedRecords = records.map(({ ai_features, ...record }) => ({
         ...record,
-        average_mood_score: Math.ceil(
-          (record.score_mood +
-            record.score_anxiety +
-            record.score_energy +
-            record.score_sleep +
-            record.score_stress) /
-            5,
+        // 🎯 Bem-estar geral: inverte ansiedade e estresse (quanto menor, melhor)
+        average_mood_score: Number(
+          (
+            (record.score_mood +
+              (6 - record.score_anxiety) + // Inverte: 5→1, 4→2, 3→3, 2→4, 1→5
+              record.score_energy +
+              record.score_sleep +
+              (6 - record.score_stress)) / // Inverte: 5→1, 4→2, 3→3, 2→4, 1→5
+            5
+          ).toFixed(1),
         ),
       }));
 
@@ -529,5 +568,500 @@ export class MoodRecordService {
       console.error('❌ Error deleting mood record:', error);
       throw new Error('Erro ao deletar o registro de humor');
     }
+  }
+
+  async getStatsOverview(userId?: string) {
+    if (!userId) {
+      throw new Error('User ID is required to fetch stats overview');
+    }
+
+    try {
+      const records = await this.prisma.moodRecord.findMany({
+        where: { userId },
+        select: {
+          score_mood: true,
+          score_anxiety: true,
+          score_energy: true,
+          score_sleep: true,
+          score_stress: true,
+          date: true,
+        },
+      });
+
+      if (records.length === 0) {
+        return {
+          totalRecords: 0,
+          averages: null,
+          trends: null,
+          lastRecord: null,
+        };
+      }
+
+      // Cálculo das médias
+      const totalRecords = records.length;
+      const sumScores = records.reduce(
+        (acc, record) => {
+          acc.score_mood += record.score_mood;
+          acc.score_anxiety += record.score_anxiety;
+          acc.score_energy += record.score_energy;
+          acc.score_sleep += record.score_sleep;
+          acc.score_stress += record.score_stress;
+          return acc;
+        },
+        {
+          score_mood: 0,
+          score_anxiety: 0,
+          score_energy: 0,
+          score_sleep: 0,
+          score_stress: 0,
+        },
+      );
+
+      const averages = {
+        score_mood: parseFloat(
+          (sumScores.score_mood / totalRecords).toFixed(2),
+        ),
+        score_anxiety: parseFloat(
+          (sumScores.score_anxiety / totalRecords).toFixed(2),
+        ),
+        score_energy: parseFloat(
+          (sumScores.score_energy / totalRecords).toFixed(2),
+        ),
+        score_sleep: parseFloat(
+          (sumScores.score_sleep / totalRecords).toFixed(2),
+        ),
+        score_stress: parseFloat(
+          (sumScores.score_stress / totalRecords).toFixed(2),
+        ),
+      };
+
+      // Tendências simples (diferença entre o primeiro e o último registro)
+      const sortedRecords = records.sort(
+        (a, b) => a.date.getTime() - b.date.getTime(),
+      );
+      const firstRecord = sortedRecords[0];
+      const lastRecord = sortedRecords[sortedRecords.length - 1];
+
+      const trends = {
+        score_mood: parseFloat(
+          (lastRecord.score_mood - firstRecord.score_mood).toFixed(2),
+        ),
+        score_anxiety: parseFloat(
+          (lastRecord.score_anxiety - firstRecord.score_anxiety).toFixed(2),
+        ),
+        score_energy: parseFloat(
+          (lastRecord.score_energy - firstRecord.score_energy).toFixed(2),
+        ),
+        score_sleep: parseFloat(
+          (lastRecord.score_sleep - firstRecord.score_sleep).toFixed(2),
+        ),
+        score_stress: parseFloat(
+          (lastRecord.score_stress - firstRecord.score_stress).toFixed(2),
+        ),
+      };
+
+      const streaks = this.calculateStreak(records);
+      return {
+        totalRecords,
+        averages,
+        trends,
+        lastRecord,
+        streaks,
+      };
+    } catch (error) {
+      console.error('❌ Error fetching stats overview:', error);
+      throw new Error('Erro ao buscar visão geral das estatísticas');
+    }
+  }
+
+  // Função auxiliar para calcular sequência de dias
+  private calculateStreak(records: Array<{ date: Date | string }>): number {
+    if (records.length === 0) return 0;
+
+    const sortedDates = records
+      .map((r) => new Date(r.date))
+      .sort((a, b) => b.getTime() - a.getTime());
+
+    let streak = 1;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Se não registrou hoje, não tem streak
+    if (sortedDates[0].getTime() !== today.getTime()) {
+      return 0;
+    }
+
+    for (let i = 1; i < sortedDates.length; i++) {
+      const diff = Math.floor(
+        (sortedDates[i - 1].getTime() - sortedDates[i].getTime()) /
+          (1000 * 60 * 60 * 24),
+      );
+
+      if (diff === 1) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }
+
+  // 📊 8. Comparação de períodos
+  async comparePeriods(period: 'week' | 'month' | 'year', userId?: string) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let currentStart: Date,
+      currentEnd: Date,
+      previousStart: Date,
+      previousEnd: Date;
+
+    switch (period) {
+      case 'week':
+        currentStart = new Date(today);
+        currentStart.setDate(currentStart.getDate() - 6);
+        currentEnd = today;
+
+        previousStart = new Date(currentStart);
+        previousStart.setDate(previousStart.getDate() - 7);
+        previousEnd = new Date(currentStart);
+        previousEnd.setDate(previousEnd.getDate() - 1);
+        break;
+
+      case 'month':
+        currentStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        currentEnd = today;
+
+        previousStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        previousEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+        break;
+
+      case 'year':
+        currentStart = new Date(today.getFullYear(), 0, 1);
+        currentEnd = today;
+
+        previousStart = new Date(today.getFullYear() - 1, 0, 1);
+        previousEnd = new Date(today.getFullYear() - 1, 11, 31);
+        break;
+    }
+
+    const [currentRecords, previousRecords] = await Promise.all([
+      this.prisma.moodRecord.findMany({
+        where: {
+          userId,
+          date: { gte: currentStart, lte: currentEnd },
+        },
+      }),
+      this.prisma.moodRecord.findMany({
+        where: {
+          userId,
+          date: { gte: previousStart, lte: previousEnd },
+        },
+      }),
+    ]);
+
+    const calculateAverages = (records: typeof currentRecords) => {
+      if (records.length === 0) return null;
+
+      return {
+        mood:
+          records.reduce((sum, r) => sum + r.score_mood, 0) / records.length,
+        anxiety:
+          records.reduce((sum, r) => sum + r.score_anxiety, 0) / records.length,
+        energy:
+          records.reduce((sum, r) => sum + r.score_energy, 0) / records.length,
+        sleep:
+          records.reduce((sum, r) => sum + r.score_sleep, 0) / records.length,
+        stress:
+          records.reduce((sum, r) => sum + r.score_stress, 0) / records.length,
+      };
+    };
+
+    return {
+      current: {
+        period: `${currentStart.toLocaleDateString('pt-BR')} - ${currentEnd.toLocaleDateString('pt-BR')}`,
+        recordCount: currentRecords.length,
+        averages: calculateAverages(currentRecords),
+      },
+      previous: {
+        period: `${previousStart.toLocaleDateString('pt-BR')} - ${previousEnd.toLocaleDateString('pt-BR')}`,
+        recordCount: previousRecords.length,
+        averages: calculateAverages(previousRecords),
+      },
+    };
+  }
+
+  // 📊 6. Dados por período customizado
+  async getByDateRange(startDate: Date, endDate: Date, userId?: string) {
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+
+    const records = await this.prisma.moodRecord.findMany({
+      where: {
+        userId,
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    return records;
+  }
+
+  // 📄 Gerar relatório PDF completo
+  async generatePdfReport(userId: string, res: Response): Promise<void> {
+    try {
+      // 1. Buscar dados do usuário
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true, email: true },
+      });
+
+      if (!user) {
+        throw new Error('Usuário não encontrado');
+      }
+
+      // 2. Buscar registros (últimos 30 dias)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+      const records = await this.prisma.moodRecord.findMany({
+        where: {
+          userId,
+          date: { gte: thirtyDaysAgo },
+        },
+        orderBy: { date: 'desc' },
+        select: {
+          date: true,
+          score_mood: true,
+          score_anxiety: true,
+          score_energy: true,
+          score_sleep: true,
+          score_stress: true,
+          ai_insight: true,
+        },
+      });
+
+      // 3. Buscar estatísticas
+      const stats = await this.getStatsOverview(userId);
+
+      // 4. Criar HTML estilizado
+      const html = await this.generateReportHTML(user, records, stats);
+
+      // 5. Gerar PDF com Puppeteer
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
+
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: {
+          top: '20px',
+          right: '20px',
+          bottom: '20px',
+          left: '20px',
+        },
+      });
+
+      await browser.close();
+
+      // 6. Configurar resposta
+      const fileName = `relatorio-mentis-${user.name.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`;
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${fileName}"`,
+      );
+      res.setHeader('Content-Length', pdfBuffer.length);
+
+      res.send(pdfBuffer);
+    } catch (error) {
+      console.error('❌ Error generating PDF report:', error);
+      throw new Error('Erro ao gerar relatório PDF');
+    }
+  }
+
+  // Método auxiliar para gerar HTML do relatório
+  private async generateReportHTML(
+    user: ReportUser,
+    records: ReportRecord[],
+    stats: ReportStats,
+  ): Promise<string> {
+    // 1. Carregar template
+    const templatePath = join(__dirname, 'templates', 'report-template.html');
+    const template = await fs.readFile(templatePath, 'utf-8');
+
+    // 2. Funções auxiliares
+    const getEmoji = (score: number): string => {
+      if (score >= 4.5) return '😊';
+      if (score >= 3.5) return '🙂';
+      if (score >= 2.5) return '😐';
+      if (score >= 1.5) return '😟';
+      return '😢';
+    };
+
+    const getScoreColor = (score: number): string => {
+      if (score >= 4) return '#10b981';
+      if (score >= 3) return '#3b82f6';
+      if (score >= 2) return '#f59e0b';
+      return '#ef4444';
+    };
+
+    // 3. Preparar dados
+    const currentDate = new Date().toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+
+    const currentYear = new Date().getFullYear();
+    const wellbeingScore = stats.averages
+      ? (
+          (stats.averages.score_mood +
+            (6 - stats.averages.score_anxiety) +
+            stats.averages.score_energy +
+            stats.averages.score_sleep +
+            (6 - stats.averages.score_stress)) /
+          5
+        ).toFixed(1)
+      : 'N/A';
+
+    // 4. Gerar cards de estatísticas
+    const statsCards = stats.averages
+      ? `
+      <div class="stat-card">
+        <span class="stat-emoji">${getEmoji(stats.averages.score_mood)}</span>
+        <div class="stat-label">Humor Médio</div>
+        <div class="stat-value" style="color: ${getScoreColor(stats.averages.score_mood)}">
+          ${stats.averages.score_mood.toFixed(1)}/5
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-emoji">😰</span>
+        <div class="stat-label">Ansiedade Média</div>
+        <div class="stat-value" style="color: ${getScoreColor(6 - stats.averages.score_anxiety)}">
+          ${stats.averages.score_anxiety.toFixed(1)}/5
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-emoji">⚡</span>
+        <div class="stat-label">Energia Média</div>
+        <div class="stat-value" style="color: ${getScoreColor(stats.averages.score_energy)}">
+          ${stats.averages.score_energy.toFixed(1)}/5
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-emoji">💤</span>
+        <div class="stat-label">Qualidade do Sono</div>
+        <div class="stat-value" style="color: ${getScoreColor(stats.averages.score_sleep)}">
+          ${stats.averages.score_sleep.toFixed(1)}/5
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-emoji">😓</span>
+        <div class="stat-label">Nível de Estresse</div>
+        <div class="stat-value" style="color: ${getScoreColor(6 - stats.averages.score_stress)}">
+          ${stats.averages.score_stress.toFixed(1)}/5
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-emoji">🎯</span>
+        <div class="stat-label">Bem-Estar Geral</div>
+        <div class="stat-value" style="color: ${getScoreColor(Number(wellbeingScore))}">
+          ${wellbeingScore}/5
+        </div>
+      </div>
+    `
+      : '<p>Estatísticas não disponíveis</p>';
+
+    // 5. Gerar seção de tendências
+    const trendsSection = stats.trends
+      ? `
+      <div class="section">
+        <h2 class="section-title">📈 Tendências Recentes</h2>
+        <div class="highlight-box">
+          <h3>Evolução do seu bem-estar</h3>
+          <p>
+            <strong>Humor:</strong> 
+            <span class="trend-indicator ${stats.trends.score_mood > 0 ? 'trend-up' : stats.trends.score_mood < 0 ? 'trend-down' : 'trend-neutral'}">
+              ${stats.trends.score_mood > 0 ? '↑' : stats.trends.score_mood < 0 ? '↓' : '→'} 
+              ${stats.trends.score_mood > 0 ? '+' : ''}${stats.trends.score_mood.toFixed(1)}
+            </span>
+            &nbsp;&nbsp;
+            <strong>Ansiedade:</strong> 
+            <span class="trend-indicator ${stats.trends.score_anxiety < 0 ? 'trend-up' : stats.trends.score_anxiety > 0 ? 'trend-down' : 'trend-neutral'}">
+              ${stats.trends.score_anxiety > 0 ? '↑' : stats.trends.score_anxiety < 0 ? '↓' : '→'} 
+              ${stats.trends.score_anxiety > 0 ? '+' : ''}${stats.trends.score_anxiety.toFixed(1)}
+            </span>
+            &nbsp;&nbsp;
+            <strong>Estresse:</strong> 
+            <span class="trend-indicator ${stats.trends.score_stress < 0 ? 'trend-up' : stats.trends.score_stress > 0 ? 'trend-down' : 'trend-neutral'}">
+              ${stats.trends.score_stress > 0 ? '↑' : stats.trends.score_stress < 0 ? '↓' : '→'} 
+              ${stats.trends.score_stress > 0 ? '+' : ''}${stats.trends.score_stress.toFixed(1)}
+            </span>
+          </p>
+        </div>
+      </div>
+    `
+      : '';
+
+    // 6. Gerar linhas de registros
+    const recordsRows = records
+      .slice(0, 10)
+      .map(
+        (record) => `
+      <tr>
+        <td><strong>${new Date(record.date).toLocaleDateString('pt-BR')}</strong></td>
+        <td><span class="score-badge" style="background: ${getScoreColor(record.score_mood)}">${record.score_mood}/5</span></td>
+        <td><span class="score-badge" style="background: ${getScoreColor(6 - record.score_anxiety)}">${record.score_anxiety}/5</span></td>
+        <td><span class="score-badge" style="background: ${getScoreColor(record.score_energy)}">${record.score_energy}/5</span></td>
+        <td><span class="score-badge" style="background: ${getScoreColor(record.score_sleep)}">${record.score_sleep}/5</span></td>
+        <td><span class="score-badge" style="background: ${getScoreColor(6 - record.score_stress)}">${record.score_stress}/5</span></td>
+      </tr>
+      ${
+        record.ai_insight
+          ? `
+      <tr>
+        <td colspan="6">
+          <div class="insight-box">
+            <strong>💡 Insight da IA:</strong> ${record.ai_insight}
+          </div>
+        </td>
+      </tr>
+      `
+          : ''
+      }
+    `,
+      )
+      .join('');
+
+    // 7. Substituir variáveis no template
+    const html = template
+      .replace(/{{userName}}/g, user.name)
+      .replace(/{{userEmail}}/g, user.email)
+      .replace(/{{currentDate}}/g, currentDate)
+      .replace(/{{currentYear}}/g, currentYear.toString())
+      .replace(/{{totalRecords}}/g, stats.totalRecords.toString())
+      .replace(/{{streakDays}}/g, (stats.streaks || 0).toString())
+      .replace(/{{statsCards}}/g, statsCards)
+      .replace(/{{trendsSection}}/g, trendsSection)
+      .replace(/{{recordsRows}}/g, recordsRows);
+
+    return html;
   }
 }

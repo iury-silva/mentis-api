@@ -299,4 +299,74 @@ export class QuestionnaireService {
       throw new NotFoundException('Block not found');
     }
   }
+  async createQuestion(
+    blockId: string,
+    questionData: {
+      question: string;
+      type: string;
+      options?: string[];
+      order: number;
+    },
+  ) {
+    // Verifica se o bloco existe
+    const block = await this.prisma.block.findUnique({
+      where: { id: blockId },
+    });
+
+    if (!block) {
+      throw new NotFoundException('Block not found');
+    }
+
+    // Conta o número atual de perguntas para definir a ordem
+    // const questionCount = await this.prisma.question.count({
+    //   where: { blockId: blockId },
+    // });
+
+    // Cria a nova pergunta com a ordem correta
+    const newQuestion = await this.prisma.question.create({
+      data: {
+        blockId: blockId,
+        question: questionData.question,
+        type: questionData.type,
+        options: questionData.options,
+        order: questionData.order,
+      },
+    });
+
+    return newQuestion;
+  }
+
+  async getDemographics() {
+    // 1. Buscamos todas as respostas do tipo 'city_state'
+    const answers = await this.prisma.userAnswer.findMany({
+      where: {
+        question: {
+          type: 'city_state',
+        },
+      },
+    });
+
+    // 2. Agrupamos usando JavaScript/TypeScript
+    // O Prisma não suporta agrupar por campos relacionados (like question.type)
+    // e agrupar por chaves dentro de JSON diretamente com `groupBy`.
+    const grouped = answers.reduce(
+      (acc, curr) => {
+        const answerData = curr.answer as { value?: string } | null;
+        if (answerData && typeof answerData.value === 'string') {
+          const cityState = answerData.value;
+          acc[cityState] = (acc[cityState] || 0) + 1;
+        }
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
+    // 3. Formatamos o resultado como um array para enviar à UI
+    return Object.entries(grouped)
+      .map(([cityState, count]) => ({
+        cityState,
+        count,
+      }))
+      .sort((a, b) => b.count - a.count);
+  }
 }

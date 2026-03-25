@@ -10,12 +10,15 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import type { AuthRequest } from 'src/auth/models/AuthRequest';
 import { QuestionnaireService } from './questionnaire.service';
 import { CreateQuestionnaireDto } from './dto/create-questionnaire.dto';
 import { UpdateQuestionnaireDto } from './dto/update-questionnaire.dto';
 import { CreateBlockResponseDto } from './dto/create-response.dto';
+import { RolesGuard } from 'src/auth/guards/roles-auth.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 @Controller('questionnaire')
 export class QuestionnaireController {
   constructor(private readonly questionnaireService: QuestionnaireService) {}
@@ -44,6 +47,14 @@ export class QuestionnaireController {
     @Query('userId') userId: string,
   ) {
     return this.questionnaireService.checkBlockAccess(blockId, userId);
+  }
+
+  @Roles('admin')
+  @UseGuards(RolesGuard)
+  @Get('demographics')
+  @HttpCode(HttpStatus.OK)
+  getDemographics() {
+    return this.questionnaireService.getDemographics();
   }
 
   @Get(':id')
@@ -102,5 +113,20 @@ export class QuestionnaireController {
       createConsentDto.name,
       createConsentDto.city,
     );
+  }
+  //Criar questão para x determinado bloco
+  @Post('question/create/:blockId')
+  @HttpCode(HttpStatus.CREATED)
+  createQuestion(
+    @Param('blockId') blockId: string,
+    @Body()
+    createQuestionDto: {
+      question: string;
+      type: string;
+      options?: string[];
+      order: number;
+    },
+  ) {
+    return this.questionnaireService.createQuestion(blockId, createQuestionDto);
   }
 }

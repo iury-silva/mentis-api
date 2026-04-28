@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'src/database/prisma.service';
 import { EmailService } from 'src/email/email.service';
@@ -19,12 +20,31 @@ export class UsersService {
     ) {
       throw new BadRequestException('Email already exists');
     }
+
+    if (createUserDto.birthDate) {
+      const birthDate = new Date(createUserDto.birthDate);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      if (age < 40) {
+        throw new BadRequestException(
+          'Usuário deve ter pelo menos 40 anos de idade',
+        );
+      }
+    }
+
     try {
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
       const tokenEmail = crypto.randomBytes(16).toString('hex');
+      const { birthDate, ...restDto } = createUserDto;
+
       const user = await this.prisma.user.create({
         data: {
-          ...createUserDto,
+          ...restDto,
+          birthDate: birthDate ? new Date(birthDate) : null,
           avatar: createUserDto.avatar || '',
           password: hashedPassword,
           type_login: 'normal',
@@ -120,10 +140,31 @@ export class UsersService {
   }
 
   async update(id: string, data: Partial<CreateUserDto>) {
+    if (data.birthDate) {
+      const birthDate = new Date(data.birthDate);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      if (age < 40) {
+        throw new BadRequestException(
+          'Usuário deve ter pelo menos 40 anos de idade',
+        );
+      }
+    }
+
     try {
+      const { birthDate, ...restData } = data;
+      const updateData: Prisma.UserUpdateInput = { ...restData };
+      if (birthDate) {
+        updateData.birthDate = new Date(birthDate);
+      }
+
       return await this.prisma.user.update({
         where: { id },
-        data,
+        data: updateData,
       });
     } catch {
       throw new Error('Error updating user');

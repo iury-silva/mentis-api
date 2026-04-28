@@ -30,6 +30,11 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   avatar?: string;
+
+  @IsOptional()
+  @IsString()
+  birthDate?: string;
+
   city?: string;
   state?: string;
   phone?: string;

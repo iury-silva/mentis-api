@@ -24,6 +24,7 @@ model User {
   city         String?
   state        String?
   phone        String?
+  birthDate    DateTime? // data de nascimento para validação de idade
   type_login   String? // ex: "google", "facebook", "email"
   first_access Boolean @default(true)
   verify_email Boolean @default(false)
